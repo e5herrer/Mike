@@ -16,12 +16,20 @@ public class Routine implements Serializable {
     private String endDate;
     private int startWeight;
     private int endWeight;
+    private String lastModified;
+    private String timeStamp;
 
     public Routine(){
-
     }
 
-    public Routine(int id, String name, String startDate, String endDate, int startWeight, int endWeight){
+    public Routine(String name, String endDate, int startWeight){
+        this.name = name;
+        this.endDate = endDate;
+        this.startWeight = startWeight;
+    }
+
+    public Routine(int id, String name, String startDate, String endDate, int startWeight,
+                   int endWeight, String lastModified, String timeStamp){
         this.id = id;
         this.name = name;
         this.startDate = startDate;
@@ -30,34 +38,6 @@ public class Routine implements Serializable {
         this.endWeight = endWeight;
     }
 
-    /*
-
-    public void addProgressCheckPoint(ProgressCheckPoint progress){
-        if(progressPics == null){
-            progressPics = new ProgressCheckPoint[1];
-            progressPics[0] = progress;
-        }
-        else{
-            int size = progressPics.length;
-            ProgressCheckPoint[] tempArray = new ProgressCheckPoint[size + 1];
-            for(int i = 0; i < size; i++){
-                tempArray[i] = progressPics[i];
-            }
-            tempArray[size] = progress;
-        }
-    }
-
-    public int numOfProgressCheckPoitns(){
-        return  progressPics.length;
-    }
-
-    public ProgressCheckPoint getProgressCheckPoint(int index){
-        if(!(index < 0 || progressPics.length >= index) ){
-            return progressPics[index];
-        }
-        return null;
-    }
-    */
 
     public void setId(int id){
         this.id = id;

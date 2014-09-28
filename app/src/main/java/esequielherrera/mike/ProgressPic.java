@@ -14,9 +14,15 @@ public class ProgressPic {
     public ProgressPic(){
     }
 
-    public ProgressPic(int id, int progressPicId, String uri, String date) {
+    public ProgressPic(int id, int routineId, String uri, String date) {
         this.id = id;
-        this.id = progressPicId;
+        this.routineId = routineId;
+        this.uri = uri;
+        this.date = date;
+    }
+
+    public ProgressPic(int routineId, String uri, String date){
+        this.routineId = routineId;
         this.uri = uri;
         this.date = date;
     }

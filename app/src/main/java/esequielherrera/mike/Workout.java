@@ -9,30 +9,46 @@ public class Workout {
     private int routineId;
     private String name;
     private String exerciseName;
-    private int reps;
     private int sets;
+    private String reps;
     private int restTime;
     private int position;
+    private String timeStamp;
 
     public Workout() {
 
     }
 
-    public Workout(int id, int routineId, String name, String workoutName, int reps, int sets,
-                   int restTime, int position){
+    public Workout(int id, int routineId, String name, String workoutName, int sets, String reps,
+                   int restTime, int position, String timeStamp){
         this.id = id;
         this.routineId = routineId;
         this.name = name;
         this.exerciseName = workoutName;
-        this.reps = reps;
         this.sets = sets;
+        this.reps = reps;
         this.restTime = restTime;
         this.position = position;
+        this.timeStamp = timeStamp;
     }
 
-    public int getId() {
-        return id;
+    public Workout(int routineId, String name, String workoutName, int sets, String reps, int restTime){
+        this.routineId = routineId;
+        this.name = name;
+        this.exerciseName = workoutName;
+        this.sets = sets;
+        this.reps = reps;
+        this.restTime = restTime;
     }
+
+    @Override
+    public String toString(){
+        return this.exerciseName + " reps:" + this.sets + " sets:" + this.reps;
+    }
+
+    public void setId(int id) {this.id = id;}
+
+    public int getId() { return id;}
 
     public int getRoutineId() {
         return routineId;
@@ -58,11 +74,11 @@ public class Workout {
         this.exerciseName = workoutName;
     }
 
-    public int getReps() {
+    public String getReps() {
         return reps;
     }
 
-    public void setReps(int reps) {
+    public void setReps(String reps) {
         this.reps = reps;
     }
 

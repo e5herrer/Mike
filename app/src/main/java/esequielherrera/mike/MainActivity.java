@@ -1,7 +1,6 @@
 package esequielherrera.mike;
 
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,11 +9,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
+import android.widget.Toast;
 
 
-
-public class main extends Activity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,9 +21,30 @@ public class main extends Activity {
 
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, new RoutineFragment())
-                    .commit();
+            Routine routine = getCurrentRoutine();
+            if(routine == null) {
+                getFragmentManager().beginTransaction()
+                        .add(R.id.container, new CreateRoutineFragment())
+                        .commit();
+            }
+            else if(new WorkoutDBHelper(this).getRoutineWorkouts(routine.getId()).size() <= 0){
+                Bundle bundle = new Bundle();
+                bundle.putInt("routineId", routine.getId());
+                AddDaysFragment fragment = new AddDaysFragment();
+                fragment.setArguments(bundle);
+                getFragmentManager().beginTransaction()
+                        .add(R.id.container, fragment)
+                        .commit();
+            }
+            else{
+                Bundle bundle = new Bundle();
+                bundle.putInt("routineId", routine.getId());
+                AddDaysFragment fragment = new AddDaysFragment();
+                fragment.setArguments(bundle);
+                getFragmentManager().beginTransaction()
+                        .add(R.id.container, fragment)
+                        .commit();
+            }
         }
     }
 
@@ -65,4 +84,18 @@ public class main extends Activity {
             return rootView;
         }
     }
+
+    public Routine getCurrentRoutine(){
+        RoutineDBHandler db = new RoutineDBHandler(this);
+        return db.getLastModified();
+    }
+
+    public void startAddDaysFragment(Bundle bundle) {
+        AddDaysFragment fragment = new AddDaysFragment();
+        fragment.setArguments(bundle);
+        getFragmentManager().beginTransaction()
+                .add(R.id.container, fragment)
+                .commit();
+    }
+
 }

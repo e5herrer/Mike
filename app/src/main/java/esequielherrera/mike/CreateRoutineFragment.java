@@ -3,17 +3,15 @@ package esequielherrera.mike;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +19,6 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -29,25 +26,26 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 /**
  * Created by esequielherrera-ortiz on 9/17/14.
  */
 
-public class RoutineFragment extends Fragment {
+public class CreateRoutineFragment extends Fragment {
     private static final int SELECT_FILE = 0;
     private static final int REQUEST_CAMERA = 1;
-    private static final String FILENAME = "Mike_Routine_File";
-    private static final String PROGRESSFOLDER = "ProgressFolder/";
     private String mCurrentPhotoPath;
     Routine routine = null;
-    ProgressCheckPoint beforePics = new ProgressCheckPoint();
+    List<Uri> pics;
 
 
-    public RoutineFragment() {
+    public CreateRoutineFragment() {
         this.routine =  new Routine();
+        this.pics = new ArrayList<Uri>();
     }
 
     @Override
@@ -65,7 +63,17 @@ public class RoutineFragment extends Fragment {
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                createNewRoutine(getActivity(), routineName,  currentWeight, weightGoal, endDate, beforePic);
+                routine = createNewRoutine(getActivity(), routineName, currentWeight, endDate);
+                if(routine != null) {
+                    ProgressPicDBHandler db = new ProgressPicDBHandler(getActivity());
+                    ProgressPic pic;
+                    String date = new Date().toString();
+                    for (int i = 0; i < pics.size(); i++) {
+                        pic = new ProgressPic(routine.getId(), pics.get(i).toString(), date);
+                        db.addProgressPic(pic);
+                    }
+                    startAddDaysFragment();
+                }
             }
         });
 
@@ -84,42 +92,28 @@ public class RoutineFragment extends Fragment {
         routine in the internal storage. If successfully created changes the save button onClick
         function.
      */
-    private boolean createNewRoutine(Context context, EditText fName, EditText cWeight,
-                                     EditText wGoal, DatePicker endDate, ImageView beforePic){
+    private Routine createNewRoutine(Context context, EditText fName, EditText cWeight,
+                                     DatePicker eDate){
 
+        RoutineDBHandler db = new RoutineDBHandler(context);
         String fileName = fName.getText().toString().trim();
-        FileOutputStream fos = obtainStream(context, FILENAME);
-        String currentWeight = cWeight.getText().toString().trim();
-        String weightGoal = wGoal.getText().toString().trim();
+        String startWeight = cWeight.getText().toString().trim();
+        String endDate = Integer.toString(eDate.getDayOfMonth()) + "/" +
+                         Integer.toString(eDate.getMonth()) + "/" +
+                         Integer.toString(eDate.getYear());
 
 
         if(fileName == null || fileName.equals("")){
             Toast.makeText(context, "Please insert a routine name", Toast.LENGTH_LONG).show();
             fName.requestFocus();
-            return false;
+            return null;
         }
-        if(currentWeight.equals("")){
-            cWeight.setText("0");
+        if(startWeight.equals("")){
+            startWeight = "0";
         }
-
-        if(weightGoal.equals("")){
-            wGoal.setText("0");
-        }
-
-        if(fos != null ) {
-            //this.routine.setRoutineName(fileName);
-            //this.routine.setBeforeWeight(Integer.decode(currentWeight));
-            //this.routine.setGoalWeight(Integer.decode(weightGoal));
-            //this.routine.addProgressCheckPoint(beforePics);
-            try {
-                fos.write(fileName.getBytes());
-                fos.close();
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return false;
+        Routine routine = new Routine(fileName, endDate, Integer.decode(startWeight));
+        db.addRoutine(routine);
+        return routine;
     }
 
     private FileOutputStream obtainStream(Context context, String dest){
@@ -163,10 +157,7 @@ public class RoutineFragment extends Fragment {
                         if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
                             startActivityForResult(intent, REQUEST_CAMERA);
                             //Check if user exceeded max of 5 photos per album
-                            if(!beforePics.addPhoto(Uri.fromFile(file))){
-                                Toast.makeText(getActivity(), "Reached limit of 5 photos per check-in",
-                                        Toast.LENGTH_SHORT).show();
-                            }
+                            pics.add(Uri.fromFile(file));
                         }
                     }
                     else{
@@ -237,6 +228,21 @@ public class RoutineFragment extends Fragment {
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;
+    }
+
+    private void startAddDaysFragment() {
+        Fragment newFragment = new AddDaysFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt("routineId", routine.getId());
+        newFragment.setArguments(bundle);
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+    // Replace whatever is in the fragment_container view with this fragment,
+    // and add the transaction to the back stack
+        transaction.replace(R.id.container, newFragment);
+
+    // Commit the transaction
+        transaction.commit();
     }
 }
 

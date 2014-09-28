@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,12 +16,12 @@ import java.util.List;
 public class ProgressPicDBHandler extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "myProgressPics",
-    TABLE_PROGRESS_PIC = "ProgressPic",
-    KEY_ID = "id",
-    KEY_ROUTINE_ID = "picId",
-    KEY_URI = "uri",
-    KEY_DATE = "date";
+    private static final String DATABASE_NAME = "myProgressPics ",
+    TABLE_PROGRESS_PIC = "ProgressPic ",
+    KEY_ID = "id ",
+    KEY_ROUTINE_ID = "picId ",
+    KEY_URI = "uri ",
+    KEY_DATE = "date ";
 
 
     public ProgressPicDBHandler (Context context){
@@ -45,7 +46,7 @@ public class ProgressPicDBHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(KEY_ROUTINE_ID, pic.getroutineId());
         values.put(KEY_URI, pic.getUri());
-        values.put(KEY_DATE, pic.getDate());
+        values.put(KEY_DATE, new Date().toString());
 
         db.insert(TABLE_PROGRESS_PIC, null, values);
         db.close();
@@ -56,7 +57,7 @@ public class ProgressPicDBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_PROGRESS_PIC, null);
 
-        if (cursor != null || cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             do {
                 ProgressPic pic = new ProgressPic(cursor.getInt(0), cursor.getInt(1),
                         cursor.getString(2), cursor.getString(3));
