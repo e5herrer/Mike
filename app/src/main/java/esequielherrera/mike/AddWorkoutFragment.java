@@ -4,11 +4,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,54 +12,46 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
  * Created by esequielherrera-ortiz on 9/25/14.
  */
-public class AddDaysFragment extends Fragment {
-    Routine routine;
+public class AddWorkoutFragment extends Fragment {
+    private Routine routine;
+    private Workout workout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_add_days, container, false);
-        final ListView daysList = (ListView)rootView.findViewById(R.id.daysList);
+        super.onCreate(savedInstanceState);
+        View rootView = inflater.inflate(R.layout.fragment_add_workouts, container, false);
+        final ListView workoutList = (ListView)rootView.findViewById(R.id.daysList);
         final Button addButton = (Button)rootView.findViewById(R.id.addButton);
-
-        int routineId = getArguments().getInt("routineId");
-        RoutineDBHandler db = new RoutineDBHandler(getActivity());
-        this.routine = db.getRoutine(routineId);
+        final Button backButton = (Button)rootView.findViewById(R.id.backButton);
+        Routine temp = routine;
 
         addButton.setOnClickListener( new View.OnClickListener() {
             public void onClick(View view) {
-                startAddWorkoutsFragment();
+                ((MainActivity)getActivity()).startAddExerciseFragment(routine, workout);
+            }
+        });
+        backButton.setOnClickListener( new View.OnClickListener() {
+            public void onClick(View view) {
+                ((MainActivity)getActivity()).startRoutineFragment();
             }
         });
 
-        setListAdapter(daysList);
+        setListAdapter(workoutList);
 
         return rootView;
     }
 
-    private void startAddWorkoutsFragment() {
-        Fragment newFragment = new AddWorkoutsFragment();
-        Bundle bundle = getArguments();
-        newFragment.setArguments(bundle);
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.container, newFragment);
-        transaction.commit();
-    }
-
     private void setListAdapter(ListView list){
-        WorkoutDBHelper db = new WorkoutDBHelper(getActivity());
-        List<Workout> workouts = db.getRoutineDays(getArguments().getInt("routineId"));
+        DBWorkoutHelper db = new DBWorkoutHelper(getActivity());
+        List<Workout> workouts = db.getRoutineWorkouts(this.routine.getId());
 
-        final ArrayAdapter adapter = new ListWorkoutsAdapter(getActivity(), workouts);
+        final ArrayAdapter adapter = new ListWorkoutAdapter(getActivity(), workouts);
         list.setAdapter(adapter);
 
         list.setOnItemClickListener( new AdapterView.OnItemClickListener() {
@@ -71,7 +59,13 @@ public class AddDaysFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> l, View v, int position,
                                     long id) {
-                Workout temp = (Workout)v.getTag();
+                WorkoutLogFragment fragment = new WorkoutLogFragment();
+                fragment.setWorkout((Workout)v.getTag());
+                fragment.setRoutine(routine);
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.container, fragment);
+                transaction.commit();
+
             }
         });
 
@@ -83,15 +77,13 @@ public class AddDaysFragment extends Fragment {
                 optionBuilder((Workout) v.getTag(), adapter, position);
                 return true;
             }
-
-
         });
 
     }
 
     public void optionBuilder(Workout wrk, ArrayAdapter adpt, int position){
         final String [] items = new String [] { "Edit", "Delete" };
-        final WorkoutDBHelper db = new WorkoutDBHelper(getActivity());
+        final DBWorkoutHelper db = new DBWorkoutHelper(getActivity());
         final Workout workout = wrk;
         final ArrayAdapter adapter = adpt;
 
@@ -101,17 +93,23 @@ public class AddDaysFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int item) {
                 if (items[item].equals("Edit")) {
+                    ((MainActivity)getActivity()).startAddExerciseFragment(routine, workout);
                     dialog.dismiss();
                 }
                 else if (items[item].equals("Delete")) {
-                    db.deleteWorkout(workout);
-                    ((ListWorkoutsAdapter)adapter).remove(workout);
+                    db.deleteDay(workout);
+                    adapter.remove(workout);
                     dialog.dismiss();
                 }
             }
         });
         builder.show();
     }
+
+    public void setRoutine(Routine routine){
+        this.routine = routine;
+    }
+    public void setWorkout(Workout workout) { this.workout = workout; }
 
 
 }

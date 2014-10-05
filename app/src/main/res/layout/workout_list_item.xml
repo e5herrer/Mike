@@ -12,27 +12,4 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/sets"
-        android:layout_below="@id/name" />
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/reps"
-        android:layout_below="@id/name"
-        android:layout_toRightOf="@id/sets"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/restTime"
-        android:layout_below="@id/name"
-        android:layout_toRightOf="@id/sets"/>
-
-
 </RelativeLayout>

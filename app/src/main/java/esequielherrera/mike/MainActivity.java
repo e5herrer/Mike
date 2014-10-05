@@ -2,6 +2,7 @@ package esequielherrera.mike;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 
 public class MainActivity extends Activity {
@@ -24,10 +24,16 @@ public class MainActivity extends Activity {
             Routine routine = getCurrentRoutine();
             if(routine == null) {
                 getFragmentManager().beginTransaction()
-                        .add(R.id.container, new CreateRoutineFragment())
+                        .add(R.id.container, new AddRoutineFragment())
                         .commit();
             }
-            else if(new WorkoutDBHelper(this).getRoutineWorkouts(routine.getId()).size() <= 0){
+
+            else if(new DBWorkoutHelper(this).getRoutineWorkouts(routine.getId()).size() <= 0){
+                Fragment fragment = new RoutineFragment();
+                getFragmentManager().beginTransaction()
+                        .add(R.id.container, fragment)
+                        .commit();
+                /*
                 Bundle bundle = new Bundle();
                 bundle.putInt("routineId", routine.getId());
                 AddDaysFragment fragment = new AddDaysFragment();
@@ -35,12 +41,10 @@ public class MainActivity extends Activity {
                 getFragmentManager().beginTransaction()
                         .add(R.id.container, fragment)
                         .commit();
+                     */
             }
             else{
-                Bundle bundle = new Bundle();
-                bundle.putInt("routineId", routine.getId());
-                AddDaysFragment fragment = new AddDaysFragment();
-                fragment.setArguments(bundle);
+                Fragment fragment = new RoutineFragment();
                 getFragmentManager().beginTransaction()
                         .add(R.id.container, fragment)
                         .commit();
@@ -86,16 +90,32 @@ public class MainActivity extends Activity {
     }
 
     public Routine getCurrentRoutine(){
-        RoutineDBHandler db = new RoutineDBHandler(this);
+        DBRoutineHelper db = new DBRoutineHelper(this);
         return db.getLastModified();
     }
 
-    public void startAddDaysFragment(Bundle bundle) {
-        AddDaysFragment fragment = new AddDaysFragment();
-        fragment.setArguments(bundle);
+    public void startAddDaysFragment(Routine routine) {
+        AddWorkoutFragment fragment = new AddWorkoutFragment();
+        fragment.setRoutine(routine);
         getFragmentManager().beginTransaction()
                 .add(R.id.container, fragment)
                 .commit();
+    }
+
+    public void startAddExerciseFragment(Routine routine, Workout workout) {
+        AddExerciseFragment fragment = new AddExerciseFragment();
+        fragment.setRoutine(routine);
+        fragment.setWorkout(workout);
+        getFragmentManager().beginTransaction()
+                .replace(R.id.container, fragment)
+                .commit();
+    }
+
+    public void startRoutineFragment() {
+        Fragment newFragment = new RoutineFragment();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.container, newFragment);
+        transaction.commit();
     }
 
 }

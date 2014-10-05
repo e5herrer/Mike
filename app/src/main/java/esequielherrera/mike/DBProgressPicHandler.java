@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by esequielherrera-ortiz on 9/24/14.
  */
-public class ProgressPicDBHandler extends SQLiteOpenHelper {
+public class DBProgressPicHandler extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "myProgressPics ",
@@ -24,7 +24,7 @@ public class ProgressPicDBHandler extends SQLiteOpenHelper {
     KEY_DATE = "date ";
 
 
-    public ProgressPicDBHandler (Context context){
+    public DBProgressPicHandler(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

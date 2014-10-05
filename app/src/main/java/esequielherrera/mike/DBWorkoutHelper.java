@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Created by esequielherrera-ortiz on 9/24/14.
  */
-public class WorkoutDBHelper extends SQLiteOpenHelper {
+public class DBWorkoutHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "myRoutines.db",
@@ -35,7 +35,7 @@ public class WorkoutDBHelper extends SQLiteOpenHelper {
                     "INTEGER," + KEY_TIME_STAMP + "TEXT)";
 
 
-    public WorkoutDBHelper (Context context){
+    public DBWorkoutHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -101,15 +101,16 @@ public class WorkoutDBHelper extends SQLiteOpenHelper {
         return workout;
     }
 
-    public List<Workout> getRoutineDays(int id){
+    public List<Workout> getRoutineWorkouts(int id){
 
         List<Workout> days = new ArrayList<Workout>();
         Workout workout;
         SQLiteDatabase db = getReadableDatabase();
-        //Gets distinct entries
-        Cursor cursor = db.query(true, TABLE_WORKOUT, new String[] {KEY_ID, KEY_ROUTINE_ID, KEY_NAME, KEY_EXERCISE_NAME,
-                        KEY_SETS, KEY_REPS, KEY_REST_TIME, KEY_POSITION, KEY_TIME_STAMP}, KEY_ROUTINE_ID + "=?",
-                new String[] { String.valueOf(id)}, null, null, null, null);
+
+        Log.i(TAG, "SELECT * FROM " + TABLE_WORKOUT + " WHERE " + KEY_ROUTINE_ID +
+                " " + id + " GROUP BY " + KEY_NAME);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_WORKOUT + " WHERE " + KEY_ROUTINE_ID +
+                " = " + id + " GROUP BY " + KEY_NAME, null);
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
@@ -123,13 +124,13 @@ public class WorkoutDBHelper extends SQLiteOpenHelper {
         db.close();
         return days;
     }
-    public List<Workout> getRoutineWorkouts(int id){
+    public List<Workout> getRoutineWorkouts(int id, String dayName){
 
         Workout workout = null;
         List<Workout> workouts = new ArrayList<Workout>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLE_WORKOUT, new String[] {KEY_ID, KEY_ROUTINE_ID, KEY_NAME, KEY_EXERCISE_NAME,
-                KEY_SETS, KEY_REPS, KEY_REST_TIME, KEY_POSITION, KEY_TIME_STAMP}, KEY_ROUTINE_ID + "=?", new String[] { String.valueOf(id)}, null, null, null, null);
+                KEY_SETS, KEY_REPS, KEY_REST_TIME, KEY_POSITION, KEY_TIME_STAMP}, KEY_ROUTINE_ID + "=? AND " + KEY_NAME + "=?", new String[] { String.valueOf(id), dayName}, null, null, null, null);
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
@@ -144,18 +145,22 @@ public class WorkoutDBHelper extends SQLiteOpenHelper {
         return workouts;
     }
 
-    public void deleteWorkout(Workout workout){
+    public void deleteDay(Workout workout){
         SQLiteDatabase db = getWritableDatabase();
-        db.delete(TABLE_WORKOUT, KEY_ID + "=?", new String[] {String.valueOf(workout.getId())});
+        String id = String.valueOf(workout.getRoutineId());
+        String name = workout.getName();
+        db.delete(TABLE_WORKOUT, KEY_ROUTINE_ID + "=? AND " + KEY_NAME + "=? ", new String[] {id, name});
         db.close();
     }
 
-    public int getWorkoutCount(){
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_WORKOUT, null);
-        cursor.close();
+    public void deleteWorkout(Workout workout){
+        SQLiteDatabase db = getWritableDatabase();
+        String id = String.valueOf(workout.getId());
+        String name = workout.getName();
+        String workoutName = workout.getExerciseName();
+
+        db.delete(TABLE_WORKOUT, KEY_ID + "=?", new String[] {id});
         db.close();
-        return cursor.getCount();
     }
 
     public int updateWorkout(Workout workout){
@@ -172,6 +177,22 @@ public class WorkoutDBHelper extends SQLiteOpenHelper {
         values.put(KEY_POSITION, workout.getPosition());
 
         return db.update(TABLE_WORKOUT, values, KEY_ID + "=?", new String[] {String.valueOf(workout.getId())});
+    }
+
+    public void updateDayNames(List<Workout> workouts, String newName){
+        for(int i = 0; i < workouts.size(); i++){
+            Workout temp = workouts.get(i);
+            temp.setName(newName);
+            updateWorkout(temp);
+        }
+    }
+
+    public int getWorkoutCount(){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_WORKOUT, null);
+        cursor.close();
+        db.close();
+        return cursor.getCount();
     }
 
     private void restartTable(){

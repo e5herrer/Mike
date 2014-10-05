@@ -14,11 +14,12 @@ import java.util.List;
 /**
  * Created by esequielherrera-ortiz on 9/24/14.
  */
-public class RoutineDBHandler extends SQLiteOpenHelper {
+public class DBRoutineHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "myRoutines.db",
     TABLE_ROUTINE = "routine",
+    TABLE_WORKOUT = "workout",
     KEY_ID = "id ",
     KEY_NAME = "name ",
     KEY_START_DATE = "startDate ",
@@ -31,10 +32,11 @@ public class RoutineDBHandler extends SQLiteOpenHelper {
             KEY_NAME + "TEXT," + KEY_START_DATE + "TEXT," + KEY_END_DATE + "TEXT," +
             KEY_START_WEIGHT + "INTEGER," + KEY_END_WEIGHT + "INTEGER," + KEY_LAST_MODIFIED + "TEXT," +
             KEY_TIME_STAMP + "TEXT)",
+    KEY_ROUTINE_ID = "routineID ",
     TAG = "RoutineDBHandler";
 
 
-    public RoutineDBHandler(Context context){
+    public DBRoutineHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -74,7 +76,9 @@ public class RoutineDBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ROUTINE, null);
 
-        if (cursor != null && cursor.moveToFirst()) {
+        int temp = cursor.getCount();
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
             do {
                 Routine routine = new Routine(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),
                         cursor.getInt(4), cursor.getInt(5), cursor.getString(6), cursor.getString(7));
@@ -82,8 +86,8 @@ public class RoutineDBHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         return routines;
-
     }
+
 
     public Routine getRoutine(int id){
         Routine routine = null;
@@ -104,7 +108,9 @@ public class RoutineDBHandler extends SQLiteOpenHelper {
     public void deleteRoutine(Routine routine){
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_ROUTINE, KEY_ID + "=?", new String[] {String.valueOf(routine.getId())});
+        db.delete(TABLE_WORKOUT, KEY_ROUTINE_ID + "=?", new String[] {String.valueOf(routine.getId())});
         db.close();
+
     }
 
     public int getRoutineCount(){

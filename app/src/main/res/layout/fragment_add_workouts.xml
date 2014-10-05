@@ -5,77 +5,32 @@
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/dayName"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
     <ListView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/listWorkouts"
-        android:layout_below="@id/dayName" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/workoutName"
-        android:layout_below="@id/listWorkouts" />
-
-    <EditText
-        android:layout_width="60dp"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
-        android:ems="10"
-        android:id="@+id/sets"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/workoutName" />
-
-    <EditText
-        android:layout_width="60dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/reps"
-        android:layout_toRightOf="@id/sets"
-        android:layout_below="@id/workoutName"/>
-
-    <EditText
-        android:layout_width="60dp"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
-        android:ems="10"
-        android:id="@+id/restTime"
-        android:layout_alignParentRight="true"
-        android:layout_toRightOf="@id/reps"
-        android:layout_below="@id/workoutName"/>
-
-
-    <Button
-        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cancel"
-        android:id="@+id/cancelButton"
+        android:id="@+id/daysList"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/saveButton" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        android:id="@+id/backButton"
+        android:layout_above="@+id/addButton"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true" />
 
     <Button
-        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Add Workout"
         android:id="@+id/addButton"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/cancelButton" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"/>
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Save"
-        android:id="@+id/saveButton"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true" />
 
 </RelativeLayout>
