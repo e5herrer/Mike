@@ -71,7 +71,7 @@ public class AddExerciseFragment extends Fragment {
                 }
                 closeFragment();
                 updateDayName(dayName);
-                ((MainActivity)getActivity()).startAddDaysFragment(routine);
+                ((MainActivity)getActivity()).startAddWorkoutFragment(routine);
             }
         });
 
@@ -79,7 +79,7 @@ public class AddExerciseFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 closeFragment();
-                ((MainActivity)getActivity()).startAddDaysFragment(routine);
+                ((MainActivity)getActivity()).startAddWorkoutFragment(routine);
             }
         });
 

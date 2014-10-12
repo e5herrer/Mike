@@ -52,7 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="->"
-                android:id="@+id/button"
+                android:id="@+id/logButton"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
@@ -63,8 +63,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_centerVertical="true"
-                android:layout_toLeftOf="@+id/button"
-                android:layout_toStartOf="@+id/button"
+                android:layout_toLeftOf="@+id/logButton"
+                android:layout_toStartOf="@+id/logButton"
                 android:weightSum="1">
 
                 <TextView
@@ -89,7 +89,7 @@
                         android:maxLines="1"
                         android:maxLength="6"
                         android:hint="Weight"
-                        android:id="@+id/editText3"
+                        android:id="@+id/weight"
                         android:layout_weight=".5" />
 
                     <EditText
@@ -100,7 +100,7 @@
                         android:maxLength="6"
                         android:hint="Reps"
                         android:ems="10"
-                        android:id="@+id/editText2"
+                        android:id="@+id/reps"
                         android:layout_weight=".5" />
                 </LinearLayout>
 
@@ -110,7 +110,7 @@
                     android:layout_height="wrap_content"
                     android:maxLines="3"
                     android:hint="Notes"
-                    android:id="@+id/editText4" />
+                    android:id="@+id/notes" />
 
 
             </LinearLayout>

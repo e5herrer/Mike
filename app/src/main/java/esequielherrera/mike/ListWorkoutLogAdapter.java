@@ -7,6 +7,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.TextView;
@@ -17,26 +18,17 @@ import java.util.List;
 /**
  * Created by esequielherrera-ortiz on 10/4/14.
  */
-public class ListWorkoutLogAdapter implements ExpandableListAdapter {
+public class ListWorkoutLogAdapter extends BaseExpandableListAdapter {
 
     private Context context;
     private List<Workout> workouts;
+    private ArrayList<List<LogEntry>> logs;
     private int childCount;
 
     public ListWorkoutLogAdapter(Context context, Workout workout) {
         this.context = context;
         DBWorkoutHelper db = new DBWorkoutHelper(context);
         this.workouts = db.getRoutineWorkouts(workout.getRoutineId(), workout.getName());
-    }
-
-    @Override
-    public void registerDataSetObserver(DataSetObserver dataSetObserver) {
-
-    }
-
-    @Override
-    public void unregisterDataSetObserver(DataSetObserver dataSetObserver) {
-
     }
 
     @Override
@@ -84,6 +76,7 @@ public class ListWorkoutLogAdapter implements ExpandableListAdapter {
     public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
         TextView exerciseName;
         TextView setsRepsRest;
+        DBLogHelper db = new DBLogHelper(context);
         Workout workout = workouts.get(i);
 
         if(view == null){
@@ -101,12 +94,35 @@ public class ListWorkoutLogAdapter implements ExpandableListAdapter {
 
     @Override
     public View getChildView(int i, int i2, boolean b, View view, ViewGroup viewGroup) {
+        LogEntry logEntry;
+        DBLogHelper db = new DBLogHelper(context);
+        LogEntry lastEntry = db.getMostRecentLog(workouts.get(i).getId(), i2);
+
         if(view == null){
             LayoutInflater inflater = ((Activity)context).getLayoutInflater();
             view = inflater.inflate(R.layout.workout_log_child_item, null);
         }
+
         ((TextView)view.findViewById(R.id.setNumber)).setText(i2 + "");
-        view.setTag(i + "-" + i2 );
+
+        logEntry = logs.get(i).get(i2);
+        TextView entry = (TextView)view.findViewById(R.id.entry);
+        if(logEntry.isSet()) {
+            entry.setText("Weight: " + logEntry.getWeight() + "Reps: " + logEntry.getReps() + "\nNotes: " + logEntry.getNotes());
+        }
+
+        TextView previous = (TextView)view.findViewById(R.id.previousEntry);
+        if(lastEntry == null)
+            previous.setText("Previous: No Data");
+        else
+            previous.setText("Previous Weight:" + lastEntry.getWeight() + " Reps: " + lastEntry.getReps()
+                + "\nNotes: " + lastEntry.getNotes());
+
+
+        logEntry = logs.get(i).get(i2);
+        logEntry.setWorkoutId(workouts.get(i).getId());
+        logEntry.setSetNum(i2);
+        view.setTag(logEntry);
         return view;
     }
 
@@ -143,5 +159,13 @@ public class ListWorkoutLogAdapter implements ExpandableListAdapter {
     @Override
     public long getCombinedGroupId(long l) {
         return 0;
+    }
+
+    public ArrayList<List<LogEntry>> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(ArrayList<List<LogEntry>> logs) {
+        this.logs = logs;
     }
 }

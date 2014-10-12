@@ -18,6 +18,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="log"
-        android:id="@+id/textView2" />
+        android:id="@+id/entry" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/previousEntry" />
 </LinearLayout>

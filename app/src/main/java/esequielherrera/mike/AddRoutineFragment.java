@@ -76,7 +76,7 @@ public class AddRoutineFragment extends Fragment {
                         pic = new ProgressPic(routine.getId(), pics.get(i).toString(), date);
                         db.addProgressPic(pic);
                     }
-                    ((MainActivity)getActivity()).startAddDaysFragment(routine);
+                    ((MainActivity)getActivity()).startAddWorkoutFragment(routine);
                 }
             }
         });

@@ -14,6 +14,9 @@ import android.view.ViewGroup;
 
 public class MainActivity extends Activity {
 
+    /** Duration of wait **/
+    private final int SPLASH_DISPLAY_LENGTH = 1000;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,13 +97,14 @@ public class MainActivity extends Activity {
         return db.getLastModified();
     }
 
-    public void startAddDaysFragment(Routine routine) {
+    public void startAddWorkoutFragment(Routine routine) {
         AddWorkoutFragment fragment = new AddWorkoutFragment();
         fragment.setRoutine(routine);
         getFragmentManager().beginTransaction()
                 .add(R.id.container, fragment)
                 .commit();
     }
+
 
     public void startAddExerciseFragment(Routine routine, Workout workout) {
         AddExerciseFragment fragment = new AddExerciseFragment();
