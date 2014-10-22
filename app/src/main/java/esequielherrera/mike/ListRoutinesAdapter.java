@@ -20,7 +20,7 @@ public class ListRoutinesAdapter extends ArrayAdapter<Routine>{
 
 
     public ListRoutinesAdapter(Context context, List<Routine> routines) {
-        super(context, R.layout.routine_list_item, routines);
+        super(context, R.layout.routine_main_list_item, routines);
         this.context = context;
         this.routines = routines;
     }
@@ -30,17 +30,20 @@ public class ListRoutinesAdapter extends ArrayAdapter<Routine>{
         TextView name, startDate, endDate;
 
         if(convertView == null){
-            LayoutInflater inflater = ((Activity)context).getLayoutInflater();
-            convertView = inflater.inflate(R.layout.routine_list_item, null);
-            convertView.setTag(routines.get(position));
+//            if(position == 0) {
+                LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+                convertView = inflater.inflate(R.layout.routine_main_list_item, null);
+                convertView.setTag(routines.get(position));
+//            }
+//            else{
+//                LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+//                convertView = inflater.inflate(R.layout.routine_list_item, null);
+//                convertView.setTag(routines.get(position));
+//            }
         }
 
         name = (TextView)convertView.findViewById(R.id.name);
-        startDate = (TextView)convertView.findViewById(R.id.startDate);
-        endDate = (TextView)convertView.findViewById(R.id.endDate);
         name.setText(routines.get(position).getName());
-        startDate.setText(String.valueOf(routines.get(position).getStartDate()));
-        endDate.setText(routines.get(position).getEndDate());
 
         return convertView;
     }

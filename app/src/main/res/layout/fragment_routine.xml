@@ -12,14 +12,16 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true" />
 
-    <Button
+
+    <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Routine"
+        android:padding="10dip"
+        android:background="#FFF"
+        android:src="@drawable/button_add"
         android:id="@+id/newButton"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="true"/>
 </RelativeLayout>

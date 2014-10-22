@@ -14,9 +14,6 @@ import android.view.ViewGroup;
 
 public class MainActivity extends Activity {
 
-    /** Duration of wait **/
-    private final int SPLASH_DISPLAY_LENGTH = 1000;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,31 +23,14 @@ public class MainActivity extends Activity {
         if (savedInstanceState == null) {
             Routine routine = getCurrentRoutine();
             if(routine == null) {
-                getFragmentManager().beginTransaction()
-                        .add(R.id.container, new AddRoutineFragment())
-                        .commit();
+                startAddRoutineFragment();
             }
 
             else if(new DBWorkoutHelper(this).getRoutineWorkouts(routine.getId()).size() <= 0){
-                Fragment fragment = new RoutineFragment();
-                getFragmentManager().beginTransaction()
-                        .add(R.id.container, fragment)
-                        .commit();
-                /*
-                Bundle bundle = new Bundle();
-                bundle.putInt("routineId", routine.getId());
-                AddDaysFragment fragment = new AddDaysFragment();
-                fragment.setArguments(bundle);
-                getFragmentManager().beginTransaction()
-                        .add(R.id.container, fragment)
-                        .commit();
-                     */
+                startRoutineFragment();
             }
             else{
-                Fragment fragment = new RoutineFragment();
-                getFragmentManager().beginTransaction()
-                        .add(R.id.container, fragment)
-                        .commit();
+                startRoutineFragment();
             }
         }
     }
@@ -92,17 +72,23 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * @return - Method returns the last modified routine by the user or null of no existing routine.
+     */
     public Routine getCurrentRoutine(){
         DBRoutineHelper db = new DBRoutineHelper(this);
         return db.getLastModified();
     }
 
+
+
     public void startAddWorkoutFragment(Routine routine) {
         AddWorkoutFragment fragment = new AddWorkoutFragment();
         fragment.setRoutine(routine);
-        getFragmentManager().beginTransaction()
-                .add(R.id.container, fragment)
-                .commit();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
 
@@ -110,15 +96,24 @@ public class MainActivity extends Activity {
         AddExerciseFragment fragment = new AddExerciseFragment();
         fragment.setRoutine(routine);
         fragment.setWorkout(workout);
-        getFragmentManager().beginTransaction()
-                .replace(R.id.container, fragment)
-                .commit();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     public void startRoutineFragment() {
         Fragment newFragment = new RoutineFragment();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.container, newFragment);
+        transaction.commit();
+    }
+
+    public void startAddRoutineFragment() {
+        Fragment newFragment = new AddRoutineFragment();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.container, newFragment);
+        transaction.addToBackStack(null);
         transaction.commit();
     }
 

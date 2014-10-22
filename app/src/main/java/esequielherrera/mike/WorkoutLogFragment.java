@@ -2,7 +2,9 @@ package esequielherrera.mike;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -20,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,7 +109,8 @@ public class WorkoutLogFragment extends Fragment {
                 adapter.notifyDataSetChanged();
 
                 //LAUNCH TIMER IF Exercise has Rest Time
-                launchTimer(5000);
+                if(myExercises.get(groupNum).getRestTime() > 0)
+                    launchTimer(myExercises.get(groupNum).getRestTime() * 1000);
             }
         });
 
@@ -164,14 +168,15 @@ public class WorkoutLogFragment extends Fragment {
     }
 
     public void launchTimer(int milSec){
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        final Ringtone r = RingtoneManager.getRingtone(getActivity(), notification);
+        final MediaPlayer mMediaPlayer = new MediaPlayer();
 
         builder.setTitle("Rest Time");
-        builder.setMessage("00:10");
+        builder.setMessage("");
         builder.setPositiveButton("Ready!", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+                mMediaPlayer.reset();
                 ((AlertDialog)dialog).hide();
                 dialog.dismiss();
             }
@@ -181,15 +186,32 @@ public class WorkoutLogFragment extends Fragment {
         dialog.show();
 
         new CountDownTimer(milSec, 1000) {
+
             @Override
             public void onTick(long millisUntilFinished) {
-                dialog.setMessage(""+ (millisUntilFinished/1000));
+                dialog.setMessage( (millisUntilFinished/1000) + " sec");
             }
 
             @Override
             public void onFinish() {
-                while(dialog.isShowing()) {
-                    r.play();
+                dialog.setMessage(0 + " sec");
+                try
+                {
+                    if(dialog.isShowing()) {
+                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                        mMediaPlayer.setDataSource(getActivity(), notification);
+                        final AudioManager audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
+                        if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
+                            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+                            mMediaPlayer.setLooping(true);
+                            mMediaPlayer.prepare();
+                            mMediaPlayer.start();
+                        }
+                    }
+                }
+                catch (IOException e)
+                {
+                    // oops!
                 }
             }
         }.start();

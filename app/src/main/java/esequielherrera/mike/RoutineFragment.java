@@ -2,8 +2,6 @@ package esequielherrera.mike;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import java.util.List;
@@ -31,14 +29,14 @@ public class RoutineFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_routine, container, false);
         final ListView routinesList = (ListView) rootView.findViewById(R.id.routinesList);
-        final Button addButton = (Button) rootView.findViewById(R.id.newButton);
+        final ImageButton addButton = (ImageButton) rootView.findViewById(R.id.newButton);
 
         DBRoutineHelper db = new DBRoutineHelper(getActivity());
         this.routines = db.getAllRoutines();
 
         addButton.setOnClickListener( new View.OnClickListener() {
             public void onClick(View view) {
-                startRoutineFragment(getActivity());
+                ((MainActivity)getActivity()).startAddRoutineFragment();
             }
         });
 
@@ -56,11 +54,7 @@ public class RoutineFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> l, View v, int position,
                                     long id) {
-                AddWorkoutFragment fragment = new AddWorkoutFragment();
-                fragment.setRoutine((Routine)v.getTag());
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.container, fragment);
-                transaction.commit();
+                ((MainActivity)getActivity()).startAddWorkoutFragment((Routine)v.getTag());
             }
         });
 
@@ -99,13 +93,5 @@ public class RoutineFragment extends Fragment {
             }
         });
         builder.show();
-    }
-
-
-    private void startRoutineFragment(Context context){
-        Fragment newFragment = new AddRoutineFragment();
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.container, newFragment);
-        transaction.commit();
     }
 }
