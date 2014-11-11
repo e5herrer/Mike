@@ -6,21 +6,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ExpandableListView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +27,7 @@ import java.util.List;
 /**
  * Created by esequielherrera-ortiz on 9/30/14.
  */
-public class WorkoutLogFragment extends Fragment {
+public class FragmentWorkoutLog extends Fragment {
     private List<Workout> myExercises = new ArrayList<Workout>();
     private ArrayList<List<LogEntry>> logs = new ArrayList<List<LogEntry>>();
     private Routine routine;
@@ -52,17 +50,18 @@ public class WorkoutLogFragment extends Fragment {
         final TextView repsNum = (TextView) rootView.findViewById(R.id.reps);
         final TextView notes = (TextView) rootView.findViewById(R.id.notes);
         final Button logButton = (Button) rootView.findViewById(R.id.logButton);
-        final Button saveButton = (Button) rootView.findViewById(R.id.saveButton);
 
+
+        //Obtaining our exercise list and setting our adapter
         DBWorkoutHelper db = new DBWorkoutHelper(getActivity());
         myExercises = db.getRoutineWorkouts(workout.getRoutineId() ,workout.getName());
-        adapter = new ListWorkoutLogAdapter(getActivity(), workout);
+        logs = createLogList(myExercises);
+        adapter = new ListWorkoutLogAdapter(getActivity(), workout, logs);
         exerciseList.setAdapter(adapter);
-        createLogList();
-        adapter.setLogs(logs);
 
-
+        //setting title of workout
         workoutName.setText(workout.getName());
+
 
         exerciseList.setOnGroupClickListener( new ExpandableListView.OnGroupClickListener() {
             @Override
@@ -80,12 +79,18 @@ public class WorkoutLogFragment extends Fragment {
                 groupNum = i;
                 childNum = i2;
                 logEntry = (LogEntry)view.getTag();
+
+                //Highlighs selected child
+                ((ListWorkoutLogAdapter)exerciseList.getExpandableListAdapter()).setFocus(i, i2);
+                ((ListWorkoutLogAdapter)exerciseList.getExpandableListAdapter()).notifyDataSetChanged();
+
+                //populate entry area when an exercise is revisited.
                 if(logEntry.isSet()) {
                     weightNum.setText(""+ logEntry.getWeight());
                     repsNum.setText("" + logEntry.getReps());
                     notes.setText(logEntry.getNotes());
                 }
-                return false;
+                return true;
             }
         });
 
@@ -114,9 +119,41 @@ public class WorkoutLogFragment extends Fragment {
             }
         });
 
-        saveButton.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        //Exapdn all groups
+        for(int i = 0; i < exerciseList.getExpandableListAdapter().getGroupCount(); i++){
+            exerciseList.expandGroup(i);
+        }
+
+        //selecting first routine
+        logEntry = logs.get(groupNum).get(childNum);
+//        selectedExerciseTitle.setText(myExercises.get(groupNum).getExerciseName());
+
+
+        return rootView;
+    }
+
+    /**
+     * Description: Sets custom action buttons to the action bar
+     * @param menu - Given by hosting activity
+     * @param inflater - Given by hosting activity
+     */
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu items for use in the action bar
+        inflater.inflate(R.menu.add_exercise_fragment_actions, menu);
+    }
+
+    /**
+     * Description - Sets the actionListeners to the action buttons in the action title bar
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle item selection
+        switch (item.getItemId()) {
+            case R.id.saveButton:
+
                 DBLogHelper db = new DBLogHelper(getActivity());
                 for(List<LogEntry> exercise : logs){
                     for(LogEntry log : exercise){
@@ -124,49 +161,67 @@ public class WorkoutLogFragment extends Fragment {
                     }
                 }
                 ((MainActivity)getActivity()).startAddWorkoutFragment(routine);
-            }
-        });
 
+                return true;
 
-
-
-        return rootView;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     /**
-     * Description: Used to focus on the next available child in expandable listview
+     * Description: When called, focuses on the next available child in expandable list view.
      */
     public void focusNextChild(){
         if(childNum < adapter.getChildrenCount(groupNum) -1)
             childNum++;
         else if(groupNum < adapter.getGroupCount() - 1){
             exerciseList.collapseGroup(groupNum++);
-            exerciseList.expandGroup(groupNum);
             childNum = 0;
         }
         else{
             return;
         }
 
+        //If user submits data on collapsed group then expand it
+        if(!exerciseList.isGroupExpanded(groupNum)){
+            exerciseList.expandGroup(groupNum);
+        }
+
         logEntry = logs.get(groupNum).get(childNum);
 
         if(logEntry.isSet())
             focusNextChild();
+
+        //Highlight next exercise
+        ((ListWorkoutLogAdapter)exerciseList.getExpandableListAdapter()).setFocus(groupNum, childNum);
+        ((ListWorkoutLogAdapter)exerciseList.getExpandableListAdapter()).notifyDataSetChanged();
+//        selectedExerciseTitle.setText(myExercises.get(groupNum).getExerciseName());
+
     }
 
 
-    public void createLogList(){
-        logs = new ArrayList<List<LogEntry>>();
-        for(int i = 0; i < adapter.getGroupCount(); i++){
-            ArrayList<LogEntry> workout = new ArrayList<LogEntry>();
-            logs.add(workout);
-            for(int j = 0; j < adapter.getChildrenCount(i); j++){
-                    workout.add(new LogEntry());
+    /**
+     * Creates a list of blank logs
+     * @param workouts - Used to calculate how many blank logs are needed
+     * @return 2d ArrayList where first level arrays represent the workout with the inner array representing the exercise sets
+     */
+    public ArrayList<List<LogEntry>> createLogList(List<Workout> workouts){
+        ArrayList<List<LogEntry>> logs = new ArrayList<List<LogEntry>>();
+        for(int i = 0; i < workouts.size(); i++){
+            ArrayList<LogEntry> exercise = new ArrayList<LogEntry>();
+            for(int j = 0; j < workouts.get(i).getSets(); j++){
+                    exercise.add(new LogEntry());
             }
-
+            logs.add(exercise);
         }
+        return logs;
     }
 
+    /**
+     * Description- Called after a workouts data is entered to start the rest time timer.
+     * @param milSec - an exercise rest time in milliseconds
+     */
     public void launchTimer(int milSec){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

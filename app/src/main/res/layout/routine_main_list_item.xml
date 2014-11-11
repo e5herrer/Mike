@@ -7,11 +7,9 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="40dip"
-        android:layout_marginTop="5dip"
-        android:layout_marginStart="2dip"
-        android:layout_marginLeft="2dip"
-        android:layout_marginRight="2dip"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:minHeight="40dip"
         android:paddingStart="10dip"
         android:paddingLeft="10dip"
         android:paddingRight="10dip"
@@ -24,9 +22,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="120dip"
-        android:layout_marginStart="2dip"
-        android:layout_marginLeft="2dip"
-        android:layout_marginRight="2dip"
         android:baselineAligned="false"
         android:background="@drawable/main_routine_background"
         android:orientation="horizontal"
@@ -45,7 +40,7 @@
                 android:layout_marginBottom="-10dip"
                 android:textColor="#cececa"
                 android:gravity="center_horizontal"
-                android:id="@+id/dayTextView"
+                android:id="@+id/dayTag"
                 android:text="Day"/>
 
             <TextView
@@ -54,7 +49,8 @@
                 android:textColor="#cececa"
                 android:textSize="35dip"
                 android:gravity="center_horizontal"
-                android:layout_below="@id/dayTextView"
+                android:id="@+id/dayTextView"
+                android:layout_below="@id/dayTag"
                 android:text="30"/>
 
 
@@ -70,20 +66,21 @@
             android:layout_weight=".7">
 
             <ImageView
+                android:id = "@+id/beforePic"
                 android:layout_width="0dip"
                 android:layout_height="100dip"
                 android:layout_weight=".5"
                 android:paddingLeft="20dip"
-                android:paddingRight="20dip"
-                android:src="@drawable/ic_launcher"/>
+                android:paddingRight="20dip"/>
 
             <ImageView
+                android:id = "@+id/afterPic"
                 android:layout_width="0dip"
                 android:layout_height="100dip"
                 android:layout_weight=".5"
                 android:paddingLeft="20dip"
                 android:paddingRight="20dip"
-                android:src="@drawable/ic_launcher"/>
+                android:src="@drawable/progress_pic_holder"/>
         </LinearLayout>
 
     </LinearLayout>

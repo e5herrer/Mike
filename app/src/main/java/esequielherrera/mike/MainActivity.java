@@ -11,15 +11,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+
 
 public class MainActivity extends Activity {
+    public enum FragmentTags{
+        FragmentAddExercise, FragmentAddRoutine, FragmentRoutine, FragmentWorkout, FragmentWorkoutLog
+    }
+
+    ArrayList<FragmentTags> fragmentStack = new ArrayList<FragmentTags>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Log.d("Main", "onCreate");
 
         setContentView(R.layout.activity_main);
+
         if (savedInstanceState == null) {
             Routine routine = getCurrentRoutine();
             if(routine == null) {
@@ -32,6 +41,28 @@ public class MainActivity extends Activity {
             else{
                 startRoutineFragment();
             }
+        }
+
+    }
+
+
+    @Override
+    public void onBackPressed(){
+        switch(fragmentStack.get(fragmentStack.size() - 1 )) {
+            case FragmentWorkoutLog:
+            case FragmentAddExercise:
+
+                Dialogs.confirmation(this).show();
+                break;
+
+            case FragmentRoutine:
+                finish();
+                break;
+
+            default:
+                finishFragment();
+                break;
+
         }
     }
 
@@ -67,8 +98,7 @@ public class MainActivity extends Activity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
 
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
+            return inflater.inflate(R.layout.fragment_main, container, false);
         }
     }
 
@@ -83,9 +113,10 @@ public class MainActivity extends Activity {
 
 
     public void startAddWorkoutFragment(Routine routine) {
-        AddWorkoutFragment fragment = new AddWorkoutFragment();
+        FragmentWorkout fragment = new FragmentWorkout();
         fragment.setRoutine(routine);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        fragmentStack.add(FragmentTags.FragmentWorkout);
         transaction.replace(R.id.container, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
@@ -93,28 +124,48 @@ public class MainActivity extends Activity {
 
 
     public void startAddExerciseFragment(Routine routine, Workout workout) {
-        AddExerciseFragment fragment = new AddExerciseFragment();
+        FragmentAddExercise fragment = new FragmentAddExercise();
         fragment.setRoutine(routine);
         fragment.setWorkout(workout);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        fragmentStack.add(FragmentTags.FragmentAddExercise);
         transaction.replace(R.id.container, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }
 
     public void startRoutineFragment() {
-        Fragment newFragment = new RoutineFragment();
+        Fragment newFragment = new FragmentRoutine();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        fragmentStack.add(FragmentTags.FragmentRoutine);
         transaction.replace(R.id.container, newFragment);
         transaction.commit();
     }
 
     public void startAddRoutineFragment() {
-        Fragment newFragment = new AddRoutineFragment();
+        Fragment newFragment = new FragmentAddRoutine();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        fragmentStack.add(FragmentTags.FragmentAddRoutine);
         transaction.replace(R.id.container, newFragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
+    public void startWorkoutLogFragment(Routine routine, Workout workout){
+        FragmentWorkoutLog newFragment = new FragmentWorkoutLog();
+        newFragment.setWorkout(workout);
+        newFragment.setRoutine(routine);
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        fragmentStack.add(FragmentTags.FragmentWorkoutLog);
+        transaction.replace(R.id.container, newFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    public void finishFragment() {
+        getFragmentManager().popBackStack();
+        fragmentStack.remove(fragmentStack.size()-1);
+    }
+
 
 }

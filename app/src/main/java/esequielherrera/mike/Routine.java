@@ -1,10 +1,10 @@
 package esequielherrera.mike;
 
-import android.graphics.Bitmap;
-
 import java.io.Serializable;
-import java.net.URI;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by esequielherrera-ortiz on 9/23/14.
@@ -13,31 +13,42 @@ public class Routine implements Serializable {
     private int id;
     private String name;
     private String startDate;
-    private String endDate;
-    private int startWeight;
-    private int endWeight;
     private String lastModified;
-    private String timeStamp;
+    private String beforePic;
+    private String afterPic;
 
-    public Routine(){
-    }
-
-    public Routine(String name, String endDate, int startWeight){
+    public Routine(String name){
         this.name = name;
-        this.endDate = endDate;
-        this.startWeight = startWeight;
     }
 
-    public Routine(int id, String name, String startDate, String endDate, int startWeight,
-                   int endWeight, String lastModified, String timeStamp){
+    public Routine(int id, String name, String startDate, String lastModified, String beforePic, String afterPic){
         this.id = id;
         this.name = name;
         this.startDate = startDate;
-        this.endDate = endDate;
-        this.startWeight = startWeight;
-        this.endWeight = endWeight;
+        this.lastModified = lastModified;
+        this.beforePic = beforePic;
+        this.afterPic = afterPic;
     }
 
+    /**
+     * Description - Calculates how many days have passed since this routine was created
+     * @return - String representation of the age of routine in days.
+     */
+    public  String ageInDays(){
+        SimpleDateFormat myFormat = new SimpleDateFormat("dd MM yyyy");
+        try {
+            if(startDate == null){
+                return "0";
+            }
+            Date date1 = myFormat.parse(startDate);
+            Date date2 = new Date();
+            long diff = date2.getTime() - date1.getTime();
+            return Long.toString(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+        }
+        catch(ParseException e){
+            return "0";
+        }
+    }
 
     public void setId(int id){
         this.id = id;
@@ -45,22 +56,6 @@ public class Routine implements Serializable {
 
     public void setName(String name){
         this.name = name;
-    }
-
-    public void setStartDate(String date){
-        this.startDate = date;
-    }
-
-    public void setEndDate(String date){
-        this.endDate = date;
-    }
-
-    public void setStartWeight(int weight){
-        this.startWeight = weight;
-    }
-
-    public void setEndWeight(int weight){
-        this.endWeight = weight;
     }
 
     public int getId(){
@@ -74,20 +69,31 @@ public class Routine implements Serializable {
         return this.startDate;
     }
 
-    public String getEndDate(){
-        return this.endDate;
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
     }
 
-    public int getStartWeight(){
-        return this.startWeight;
+    public String getLastModified() {
+        return lastModified;
     }
 
-    public int getEndWeight(){
-        return this.endWeight;
+    public void setLastModified(String lastModified) {
+        this.lastModified = lastModified;
     }
 
+    public String getBeforePic() {
+        return beforePic;
+    }
 
+    public void setBeforePic(String beforePic) {
+        this.beforePic = beforePic;
+    }
 
+    public String getAfterPic() {
+        return afterPic;
+    }
 
-
+    public void setAfterPic(String afterPic) {
+        this.afterPic = afterPic;
+    }
 }

@@ -9,7 +9,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Created by esequielherrera-ortiz on 10/10/14.
@@ -100,12 +102,14 @@ public class DBLogHelper extends SQLiteOpenHelper{
         if (cursor != null) {
             if(cursor.moveToFirst()) {
 
-                //Since using MAX in query cursor returning non empty set so checking this didn't happen
-                if(cursor.getString(7) == null){
+                //Because we use Order by Desc cursor can return the empty set resulting in null pointer exception.
+                try {
+                    logEntry = new LogEntry(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getInt(3),
+                            cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getString(7));
+                }
+                catch(Exception e){
                     return null;
                 }
-                logEntry = new LogEntry(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getInt(3),
-                        cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getString(7));
             }
         }
 
@@ -113,7 +117,40 @@ public class DBLogHelper extends SQLiteOpenHelper{
         return logEntry;
     }
 
-    private void restartTable(){
+    /**
+     * return: Returns an ArrayList<LogEntry> with 1 LogEntry per workout. The list is ordered in descending order submitted.
+     *          Used to order workouts by last modified.
+     */
+    public List<LogEntry> getWorkoutsByLastModified(){
+
+        List<LogEntry> workoutLogs = new ArrayList<LogEntry>();
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_LOG_ENTRY, new String[]{KEY_ID, KEY_WORKOUT_ID, KEY_SET_NUM, KEY_WEIGHT,
+                KEY_REPS, KEY_NOTES, KEY_REST_TIME, KEY_TIME_STAMP}, null, null, KEY_WORKOUT_ID, null, KEY_TIME_STAMP + " DESC");
+
+        if (cursor != null) {
+            if(cursor.moveToFirst()) {
+                //Because we use Order by Desc cursor can return the empty set resulting in null pointer exception.
+                try {
+                    do {
+                        workoutLogs.add(new LogEntry(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getInt(3),
+                                cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getString(7)));
+                    } while(cursor.moveToNext());
+
+                }
+                catch(Exception e){
+                    return null;
+                }
+            }
+        }
+
+        db.close();
+        return workoutLogs;
+    }
+
+
+    private void resetTable(){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOG_ENTRY);
         db.execSQL(KEY_CREATE_TABLE);

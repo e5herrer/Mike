@@ -32,7 +32,7 @@ public class DBWorkoutHelper extends SQLiteOpenHelper {
             KEY_CREATE_TABLE = "CREATE TABLE " + TABLE_WORKOUT + " (" + KEY_ID + "INTEGER PRIMARY KEY AUTOINCREMENT," +
                     KEY_ROUTINE_ID + "INTEGER," + KEY_NAME + "TEXT," + KEY_EXERCISE_NAME + "TEXT," +
                     KEY_SETS + "INTEGER," + KEY_REPS + "TEXT," + KEY_REST_TIME + "INTEGER," + KEY_POSITION +
-                    "INTEGER," + KEY_TIME_STAMP + "TEXT)";
+                    "INTEGER," + KEY_TIME_STAMP + "DATETIME DEFAULT CURRENT_TIMESTAMP)";
 
 
     public DBWorkoutHelper(Context context){
@@ -93,9 +93,10 @@ public class DBWorkoutHelper extends SQLiteOpenHelper {
                 KEY_REPS, KEY_SETS, KEY_REST_TIME, KEY_POSITION, KEY_TIME_STAMP}, KEY_ID + "=?", new String[] { String.valueOf(id)}, null, null, null, null);
 
         if (cursor != null) {
-            cursor.moveToFirst();
-            workout = new Workout(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getString(3),
-                    cursor.getInt(4), cursor.getString(5), cursor.getInt(6), cursor.getInt(7), cursor.getString(8));
+            if(cursor.moveToFirst()) {
+                workout = new Workout(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getString(3),
+                        cursor.getInt(4), cursor.getString(5), cursor.getInt(6), cursor.getInt(7), cursor.getString(8));
+            }
         }
         db.close();
         return workout;
@@ -145,6 +146,7 @@ public class DBWorkoutHelper extends SQLiteOpenHelper {
         return workouts;
     }
 
+
     public void deleteDay(Workout workout){
         SQLiteDatabase db = getWritableDatabase();
         String id = String.valueOf(workout.getRoutineId());
@@ -179,7 +181,7 @@ public class DBWorkoutHelper extends SQLiteOpenHelper {
         return db.update(TABLE_WORKOUT, values, KEY_ID + "=?", new String[] {String.valueOf(workout.getId())});
     }
 
-    public void updateDayNames(List<Workout> workouts, String newName){
+    public void updateWorkoutNames(List<Workout> workouts, String newName){
         for(int i = 0; i < workouts.size(); i++){
             Workout temp = workouts.get(i);
             temp.setName(newName);
@@ -195,7 +197,7 @@ public class DBWorkoutHelper extends SQLiteOpenHelper {
         return cursor.getCount();
     }
 
-    private void restartTable(){
+    private void resetTable(){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_WORKOUT);
         db.execSQL(KEY_CREATE_TABLE);

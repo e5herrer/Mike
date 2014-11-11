@@ -22,13 +22,12 @@ public class ListWorkoutAdapter extends ArrayAdapter<Workout> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
         TextView name;
 
 
         if(convertView == null){
             LayoutInflater inflater = ((Activity)context).getLayoutInflater();
-            convertView = inflater.inflate(R.layout.workout_list_item, null);
+            convertView = inflater.inflate(R.layout.workout_list_item, parent, false);
             convertView.setTag(workouts.get(position));
         }
 
@@ -38,8 +37,5 @@ public class ListWorkoutAdapter extends ArrayAdapter<Workout> {
         return convertView;
     }
 
-    private static class ViewHolder{
-        public String id;
-    }
 
 }

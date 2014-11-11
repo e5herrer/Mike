@@ -6,13 +6,10 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="40dip"
+        android:layout_height="wrap_content"
+        android:minHeight="40dip"
         android:background="#3d3d3d"
         android:gravity="center_vertical"
-        android:layout_marginTop="2dip"
-        android:layout_marginStart="2dip"
-        android:layout_marginLeft="2dip"
-        android:layout_marginRight="2dip"
         android:paddingStart="10dip"
         android:paddingLeft="10dip"
         android:paddingRight="10dip"
