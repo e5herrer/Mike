@@ -28,6 +28,8 @@
     <string name="lose_related_data">Are you sure you want to delete? You will lose all related data.</string>
     <string name="delete">Delete</string>
 
+    <string name="action_timer">Timer</string>
+    <string name="action_timer_button">Timer Button</string>
 
     <!-- Button Text -->
     <string name="add_button">+</string>
@@ -35,5 +37,7 @@
     <string name="discard_button">Discard</string>
 
     <string name="action_new">New</string>
+
+    <string name="new_album">New Album</string>
 
 </resources>

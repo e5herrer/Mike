@@ -88,13 +88,7 @@ public class ProgressPic {
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(selectedImage, selectedImage.getWidth(), selectedImage.getHeight() , true);
         Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap , 0, 0, scaledBitmap .getWidth(), scaledBitmap .getHeight(), matrix, true);
 
-        String imageFile;
-        try {
-            imageFile = createImageFile();
-        }
-        catch(IOException e){
-            return null;
-        }
+        String imageFile = createImageFile();
 
         FileOutputStream fos;
         try {
@@ -138,6 +132,11 @@ public class ProgressPic {
         }
     }
 
+    public Bitmap getBitmap(int width, int height){
+        Bitmap pic = BitmapFactory.decodeFile(path);
+        return Bitmap.createScaledBitmap(pic, width, height, true);
+    }
+
     /**
      * deleteGallaryImage - Used to delete Images in the Mike gallery folder.
      * @param context - Current context of the application. Used to get content resolver
@@ -174,7 +173,7 @@ public class ProgressPic {
      * @throws IOException
      */
 
-    public static String createImageFile() throws IOException {
+    public static String createImageFile() {
         //camera stuff
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
@@ -184,6 +183,7 @@ public class ProgressPic {
 
         return new File(imagesFolder, "QR_" + timeStamp + ".png").getAbsolutePath();
     }
+
 
     public int getProgressPicId() {
         return id;

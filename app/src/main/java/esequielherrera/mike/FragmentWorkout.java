@@ -50,6 +50,9 @@ public class FragmentWorkout extends Fragment {
             case R.id.new_workout:
                 ((MainActivity)getActivity()).startAddExerciseFragment(routine, workout);
                 return true;
+            case R.id.progress:
+                ((MainActivity)getActivity()).startGalleryFragment(routine);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

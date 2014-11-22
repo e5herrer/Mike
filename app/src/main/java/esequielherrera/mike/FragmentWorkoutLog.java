@@ -1,26 +1,18 @@
 package esequielherrera.mike;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +29,7 @@ public class FragmentWorkoutLog extends Fragment {
     private ListWorkoutLogAdapter adapter;
     private int groupNum;
     private int childNum;
-
+    private Clock clock;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,7 +46,7 @@ public class FragmentWorkoutLog extends Fragment {
 
         //Obtaining our exercise list and setting our adapter
         DBWorkoutHelper db = new DBWorkoutHelper(getActivity());
-        myExercises = db.getRoutineWorkouts(workout.getRoutineId() ,workout.getName());
+        myExercises = db.getWorkoutExercises(workout.getRoutineId(), workout.getName());
         logs = createLogList(myExercises);
         adapter = new ListWorkoutLogAdapter(getActivity(), workout, logs);
         exerciseList.setAdapter(adapter);
@@ -78,7 +70,7 @@ public class FragmentWorkoutLog extends Fragment {
             public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
                 groupNum = i;
                 childNum = i2;
-                logEntry = (LogEntry)view.getTag();
+                logEntry = logs.get(i).get(i2);
 
                 //Highlighs selected child
                 ((ListWorkoutLogAdapter)exerciseList.getExpandableListAdapter()).setFocus(i, i2);
@@ -106,18 +98,30 @@ public class FragmentWorkoutLog extends Fragment {
                 logEntry.setWeight(Integer.decode(weightNum.getText().toString()));
                 logEntry.setNotes(notes.getText().toString().trim());
                 logEntry.setReps(repsNum.getText().toString().trim());
-                logEntry.setSet(true);
+
                 weightNum.setText("");
                 notes.setText("");
                 repsNum.setText("");
-                focusNextChild();
-                adapter.notifyDataSetChanged();
 
                 //LAUNCH TIMER IF Exercise has Rest Time
-                if(myExercises.get(groupNum).getRestTime() > 0)
-                    launchTimer(myExercises.get(groupNum).getRestTime() * 1000);
+                if(myExercises.get(groupNum).getRestTime() > 0) {
+                    //If not the last set in an exercise launch rest timer
+                    if (childNum < logs.get(groupNum).size() - 1) {
+                        //if its a new log then start timer
+                        if(!logs.get(groupNum).get(childNum).isSet())
+                            clock.startTimer(myExercises.get(groupNum).getRestTime());
+                    } else {
+                        clock.startStopWatch();
+                    }
+                }
+
+                logEntry.setSet(true);
+                focusNextChild();
+                weightNum.requestFocus();
+                adapter.notifyDataSetChanged();
             }
         });
+
 
         //Exapdn all groups
         for(int i = 0; i < exerciseList.getExpandableListAdapter().getGroupCount(); i++){
@@ -126,10 +130,26 @@ public class FragmentWorkoutLog extends Fragment {
 
         //selecting first routine
         logEntry = logs.get(groupNum).get(childNum);
-//        selectedExerciseTitle.setText(myExercises.get(groupNum).getExerciseName());
+
+        //Need to change the way keyboard to carry input field up
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+        //Signaling Activity to call onCreateOptionMenu to setup action bar buttons
+        setHasOptionsMenu(true);
 
 
         return rootView;
+    }
+
+    /**
+     * Needed to destroy any ongoing timers
+     */
+    @Override
+    public void onDestroyView(){
+        super.onDestroyView();
+        if(clock != null){
+            clock.reset();
+        }
     }
 
     /**
@@ -140,13 +160,36 @@ public class FragmentWorkoutLog extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu items for use in the action bar
-        inflater.inflate(R.menu.add_exercise_fragment_actions, menu);
+        inflater.inflate(R.menu.workout_log_fragment_actions, menu);
+
+
+        //creating our timer box
+        MenuItem timerItem = menu.findItem(R.id.timer);
+        TextView timerDisplay = (TextView)timerItem.getActionView();
+        timerDisplay.setPadding(20, 0, 20, 0);
+
+        timerDisplay.setTextSize(24);
+
+        clock = new Clock(getActivity(), timerDisplay);
+
+        timerDisplay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(clock.onStandby())
+                    clock.startStopWatch();
+                else
+                    clock.reset();
+
+            }
+        });
+
+
     }
 
     /**
      * Description - Sets the actionListeners to the action buttons in the action title bar
-     * @param item
-     * @return
+     * @param item - The menu item that was selected.
+     * @return - boolean Return false to allow normal menu processing to proceed, true to consume it here.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -167,6 +210,7 @@ public class FragmentWorkoutLog extends Fragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
+
     }
 
     /**
@@ -193,11 +237,10 @@ public class FragmentWorkoutLog extends Fragment {
         if(logEntry.isSet())
             focusNextChild();
 
-        //Highlight next exercise
+        //Highlight and scroll to next exercise
         ((ListWorkoutLogAdapter)exerciseList.getExpandableListAdapter()).setFocus(groupNum, childNum);
         ((ListWorkoutLogAdapter)exerciseList.getExpandableListAdapter()).notifyDataSetChanged();
-//        selectedExerciseTitle.setText(myExercises.get(groupNum).getExerciseName());
-
+        exerciseList.smoothScrollToPosition(exerciseList.getFlatListPosition(exerciseList.getPackedPositionForChild(groupNum,childNum)));
     }
 
 
@@ -207,10 +250,13 @@ public class FragmentWorkoutLog extends Fragment {
      * @return 2d ArrayList where first level arrays represent the workout with the inner array representing the exercise sets
      */
     public ArrayList<List<LogEntry>> createLogList(List<Workout> workouts){
+
         ArrayList<List<LogEntry>> logs = new ArrayList<List<LogEntry>>();
-        for(int i = 0; i < workouts.size(); i++){
+
+        for( Workout workout : workouts){
             ArrayList<LogEntry> exercise = new ArrayList<LogEntry>();
-            for(int j = 0; j < workouts.get(i).getSets(); j++){
+
+            for(int j = 0; j < workout.getSets(); j++){
                     exercise.add(new LogEntry());
             }
             logs.add(exercise);
@@ -218,59 +264,7 @@ public class FragmentWorkoutLog extends Fragment {
         return logs;
     }
 
-    /**
-     * Description- Called after a workouts data is entered to start the rest time timer.
-     * @param milSec - an exercise rest time in milliseconds
-     */
-    public void launchTimer(int milSec){
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        final MediaPlayer mMediaPlayer = new MediaPlayer();
-
-        builder.setTitle("Rest Time");
-        builder.setMessage("");
-        builder.setPositiveButton("Ready!", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                mMediaPlayer.reset();
-                ((AlertDialog)dialog).hide();
-                dialog.dismiss();
-            }
-        });
-
-        final AlertDialog dialog = builder.create();
-        dialog.show();
-
-        new CountDownTimer(milSec, 1000) {
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-                dialog.setMessage( (millisUntilFinished/1000) + " sec");
-            }
-
-            @Override
-            public void onFinish() {
-                dialog.setMessage(0 + " sec");
-                try
-                {
-                    if(dialog.isShowing()) {
-                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                        mMediaPlayer.setDataSource(getActivity(), notification);
-                        final AudioManager audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
-                        if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
-                            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
-                            mMediaPlayer.setLooping(true);
-                            mMediaPlayer.prepare();
-                            mMediaPlayer.start();
-                        }
-                    }
-                }
-                catch (IOException e)
-                {
-                    // oops!
-                }
-            }
-        }.start();
-    }
 
     public void setWorkout(Workout myWorkout) {
         this.workout = myWorkout;

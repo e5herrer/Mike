@@ -169,12 +169,7 @@ public class FragmentAddRoutine extends Fragment {
 
                     Intent imageIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 
-                    try {
-                        selectedImage = ProgressPic.createImageFile();
-                    }
-                    catch(IOException e){
-                        return;
-                    }
+                    selectedImage = ProgressPic.createImageFile();
 
                     imageIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(selectedImage)));
                     startActivityForResult(imageIntent, REQUEST_CAMERA);

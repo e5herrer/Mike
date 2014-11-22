@@ -125,13 +125,12 @@ public class DBWorkoutHelper extends SQLiteOpenHelper {
         db.close();
         return days;
     }
-    public List<Workout> getRoutineWorkouts(int id, String dayName){
+    public List<Workout> getWorkoutExercises(int id, String dayName){
 
-        Workout workout = null;
+        Workout workout;
         List<Workout> workouts = new ArrayList<Workout>();
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLE_WORKOUT, new String[] {KEY_ID, KEY_ROUTINE_ID, KEY_NAME, KEY_EXERCISE_NAME,
-                KEY_SETS, KEY_REPS, KEY_REST_TIME, KEY_POSITION, KEY_TIME_STAMP}, KEY_ROUTINE_ID + "=? AND " + KEY_NAME + "=?", new String[] { String.valueOf(id), dayName}, null, null, null, null);
+        Cursor cursor = db.query(TABLE_WORKOUT, null, KEY_ROUTINE_ID + "=? AND " + KEY_NAME + "=?", new String[] { String.valueOf(id), dayName}, null, null, KEY_POSITION + " ASC", null);
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
@@ -184,6 +183,7 @@ public class DBWorkoutHelper extends SQLiteOpenHelper {
     public void updateWorkoutNames(List<Workout> workouts, String newName){
         for(int i = 0; i < workouts.size(); i++){
             Workout temp = workouts.get(i);
+            temp.setPosition(i);
             temp.setName(newName);
             updateWorkout(temp);
         }

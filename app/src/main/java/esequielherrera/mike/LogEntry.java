@@ -66,6 +66,10 @@ public class LogEntry {
     }
 
     public String getReps() {
+
+        if(reps == null){
+            return "0";
+        }
         return reps;
     }
 
@@ -74,7 +78,13 @@ public class LogEntry {
     }
 
     public String getNotes() {
-        return notes;
+
+        if(notes == null){
+            return "";
+        }
+        else{
+            return notes;
+        }
     }
 
     public void setNotes(String notes) {

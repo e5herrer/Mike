@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class ListExerciseAdapter extends ArrayAdapter<Workout> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         TextView name, reps, sets, restTime;
 
         if(convertView == null){
@@ -48,6 +49,36 @@ public class ListExerciseAdapter extends ArrayAdapter<Workout> {
         else
             convertView.setBackgroundColor(Color.rgb(215, 215, 215));
 
+        //Set up the reorder onclick listeners
+        final ImageButton upButton = (ImageButton)convertView.findViewById(R.id.upButton);
+        final ImageButton downButton = (ImageButton)convertView.findViewById(R.id.downButton);
+
+        upButton.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view){
+                if(position > 0){
+                    Workout selected = workouts.remove(position);
+                    workouts.add(position - 1, selected);
+                    notifyDataSetChanged();
+                }
+
+            }
+        });
+
+
+
+        downButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(position < workouts.size() - 1) {
+                    Workout selected = workouts.remove(position + 1);
+                    workouts.add(position, selected);
+                    notifyDataSetChanged();
+                }
+            }
+        });
+
+
         name = (TextView)convertView.findViewById(R.id.name);
         reps = (TextView)convertView.findViewById(R.id.reps);
         sets = (TextView)convertView.findViewById(R.id.sets);
@@ -64,7 +95,6 @@ public class ListExerciseAdapter extends ArrayAdapter<Workout> {
     public void setSelected(int selected) {
         this.selected = selected;
     }
-
 
 
 }

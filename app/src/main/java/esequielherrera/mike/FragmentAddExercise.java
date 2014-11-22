@@ -2,7 +2,6 @@ package esequielherrera.mike;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -27,7 +26,6 @@ import java.util.List;
  */
 public class FragmentAddExercise extends Fragment {
     private List<Workout> allExercises = new ArrayList<Workout>();
-    private List<Workout> updatedExercises = new ArrayList<Workout>();
     private List<Workout> workouts = new ArrayList<Workout>();
     private EditText workoutName;
     private EditText sets;
@@ -55,11 +53,8 @@ public class FragmentAddExercise extends Fragment {
         addButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(addExercise(workoutName, exerciseName, sets, reps, restTime)){
+                addExercise(workoutName, exerciseName, sets, reps, restTime);
 
-                    //Keeps list focused on last element
-                    listWorkouts.setSelection(allExercises.size() - 1);
-                }
                 ((ArrayAdapter)listWorkouts.getAdapter()).notifyDataSetChanged();
 
 
@@ -68,6 +63,9 @@ public class FragmentAddExercise extends Fragment {
                 sets.setText("");
                 reps.setText("");
                 exerciseName.requestFocus();
+
+                //Keeps list focused on last element
+                listWorkouts.smoothScrollToPosition(allExercises.size() - 1);
             }
         });
 
@@ -84,7 +82,7 @@ public class FragmentAddExercise extends Fragment {
 
         if(workout != null){
             workoutName.setText(workout.getName());
-            allExercises = new DBWorkoutHelper(getActivity()).getRoutineWorkouts(workout.getRoutineId(), workout.getName());
+            allExercises = new DBWorkoutHelper(getActivity()).getWorkoutExercises(workout.getRoutineId(), workout.getName());
         }
 
         //Signaling Activity to call onCreateOptionMenu to setup action bar buttons
@@ -95,6 +93,7 @@ public class FragmentAddExercise extends Fragment {
 
         //Need to change the way keyboard to carry input field up
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
 
 
         workoutName.requestFocus();
@@ -211,7 +210,6 @@ public class FragmentAddExercise extends Fragment {
             editExercise.setRestTime(Integer.decode(restTime));
             //Remove selected screen
             ((ListExerciseAdapter)listWorkouts.getAdapter()).setSelected(-1);
-            updatedExercises.add(editExercise);
             editExercise = null;
             return false;
 

@@ -41,6 +41,8 @@
     </LinearLayout>
 
 
+
+    <!-- Log input form -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -48,6 +50,7 @@
         android:id="@id/exerciseInput"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true">
+
 
         <LinearLayout
             android:orientation="vertical"
@@ -106,5 +109,10 @@
 
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dip"
+        android:layout_above="@id/exerciseInput"
+        android:background="@android:color/darker_gray" />
 
 </RelativeLayout>

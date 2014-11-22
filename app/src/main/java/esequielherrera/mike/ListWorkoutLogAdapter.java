@@ -2,16 +2,11 @@ package esequielherrera.mike;
 
 import android.app.Activity;
 import android.content.Context;
-import android.database.DataSetObserver;
 import android.graphics.Color;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.EditText;
-import android.widget.ExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -34,7 +29,7 @@ public class ListWorkoutLogAdapter extends BaseExpandableListAdapter {
     public ListWorkoutLogAdapter(Context context, Workout workout, ArrayList<List<LogEntry>> logs) {
         this.context = context;
         DBWorkoutHelper db = new DBWorkoutHelper(context);
-        this.workouts = db.getRoutineWorkouts(workout.getRoutineId(), workout.getName());
+        this.workouts = db.getWorkoutExercises(workout.getRoutineId(), workout.getName());
         this.logs = logs;
 
         previousLogs = getPreviousLogs(workouts);
@@ -125,7 +120,14 @@ public class ListWorkoutLogAdapter extends BaseExpandableListAdapter {
 
         //set current input
         if(logEntry.isSet()) {
-            entry.setText("Weight: " + logEntry.getWeight() + "Reps: " + logEntry.getReps() + "\nNotes: " + logEntry.getNotes());
+
+            String data = "Weight: " + logEntry.getWeight() + "\t\tReps: " + logEntry.getReps();
+
+            if(logEntry.getNotes().equals("")){
+                entry.setText(data);
+            }
+            else
+                entry.setText(data + "\t\tNotes: " + logEntry.getNotes());
         }
         else{
             entry.setText("");
@@ -134,8 +136,11 @@ public class ListWorkoutLogAdapter extends BaseExpandableListAdapter {
         //Set previous data
         TextView previous = (TextView)view.findViewById(R.id.previousEntry);
         if(lastEntry != null) {
-            previous.setText("Previous Weight:" + lastEntry.getWeight() + " Reps: " + lastEntry.getReps()
-                    + "\nNotes: " + lastEntry.getNotes());
+            String previousData = "Previous -\tWeight: " + lastEntry.getWeight() + "\t\t Reps: " + lastEntry.getReps();
+            if(lastEntry.getNotes().equals(""))
+                previous.setText( previousData);
+            else
+                previous.setText( previousData +  "\t\t Notes: " + lastEntry.getNotes());
         }
         else{
             previous.setText("");

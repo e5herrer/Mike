@@ -67,7 +67,7 @@ public class DBProgressPicHandler extends SQLiteOpenHelper {
     public List<ProgressPic> getAllProgressPics(){
         List<ProgressPic> pics = new ArrayList<ProgressPic>();
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_PROGRESS_PIC, null);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_PROGRESS_PIC + " ORDER BY " + KEY_DATE + " DESC", null);
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -87,7 +87,7 @@ public class DBProgressPicHandler extends SQLiteOpenHelper {
         ArrayList<ProgressPic> pics = new ArrayList<ProgressPic>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLE_PROGRESS_PIC, new String[] {KEY_ID, KEY_ROUTINE_ID, KEY_URI, KEY_DATE},
-                KEY_ROUTINE_ID + "=?", new String[] { String.valueOf(id)}, null, null, KEY_DATE + " ASC", null);
+                KEY_ROUTINE_ID + "=?", new String[] { String.valueOf(id)}, null, null, KEY_DATE + " DESC", null);
 
         if (cursor != null && cursor.moveToFirst()) {
             do {

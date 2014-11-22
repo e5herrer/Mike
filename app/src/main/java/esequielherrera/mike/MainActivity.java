@@ -16,7 +16,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
     public enum FragmentTags{
-        FragmentAddExercise, FragmentAddRoutine, FragmentRoutine, FragmentWorkout, FragmentWorkoutLog
+        FragmentAddExercise, FragmentAddRoutine, FragmentRoutine, FragmentWorkout, FragmentWorkoutLog,
+        FragmentProgresssPicGallery, FragmentFullScreenImage
     }
 
     ArrayList<FragmentTags> fragmentStack = new ArrayList<FragmentTags>();
@@ -157,6 +158,25 @@ public class MainActivity extends Activity {
         newFragment.setRoutine(routine);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         fragmentStack.add(FragmentTags.FragmentWorkoutLog);
+        transaction.replace(R.id.container, newFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    public void startGalleryFragment(Routine routine){
+        FragmentProgressPicGallery newFragment = new FragmentProgressPicGallery();
+        newFragment.setRoutine(routine);
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        fragmentStack.add(FragmentTags.FragmentProgresssPicGallery);
+        transaction.replace(R.id.container, newFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    public void startFragmentFullScreenImage(String imgPath){
+        FragmentFullScreenImage newFragment = new FragmentFullScreenImage(imgPath);
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        fragmentStack.add(FragmentTags.FragmentFullScreenImage);
         transaction.replace(R.id.container, newFragment);
         transaction.addToBackStack(null);
         transaction.commit();
