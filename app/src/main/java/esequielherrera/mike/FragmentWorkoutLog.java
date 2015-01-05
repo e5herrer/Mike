@@ -1,7 +1,10 @@
 package esequielherrera.mike;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +23,7 @@ import java.util.List;
  * Created by esequielherrera-ortiz on 9/30/14.
  */
 public class FragmentWorkoutLog extends Fragment {
-    private List<Workout> myExercises = new ArrayList<Workout>();
+    private List<Exercise> myExercises = new ArrayList<Exercise>();
     private ArrayList<List<LogEntry>> logs = new ArrayList<List<LogEntry>>();
     private Routine routine;
     private Workout workout;
@@ -30,6 +33,7 @@ public class FragmentWorkoutLog extends Fragment {
     private int groupNum;
     private int childNum;
     private Clock clock;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,9 +48,9 @@ public class FragmentWorkoutLog extends Fragment {
         final Button logButton = (Button) rootView.findViewById(R.id.logButton);
 
 
-        //Obtaining our exercise list and setting our adapter
-        DBWorkoutHelper db = new DBWorkoutHelper(getActivity());
-        myExercises = db.getWorkoutExercises(workout.getRoutineId(), workout.getName());
+        //Obtaining exercise list and setting adapter
+        DBExerciseHelper db = new DBExerciseHelper(getActivity());
+        myExercises = db.getWorkoutExercises(workout);
         logs = createLogList(myExercises);
         adapter = new ListWorkoutLogAdapter(getActivity(), workout, logs);
         exerciseList.setAdapter(adapter);
@@ -56,15 +60,45 @@ public class FragmentWorkoutLog extends Fragment {
 
 
         exerciseList.setOnGroupClickListener( new ExpandableListView.OnGroupClickListener() {
+            int clickedGroup;
+            int numClicks;
             @Override
-            public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
-                groupNum = i;
-                childNum = 0;
-                logEntry = logs.get(i).get(0);
-                return false;
+            public boolean onGroupClick(final ExpandableListView expandableListView, View view, int i, long l) {
+                if(clickedGroup != i){
+                    numClicks = 0;
+                    clickedGroup = i;
+                }
+                numClicks++;
+                Handler handler = new Handler();
+                final int groupNum = i;
+                Runnable r = new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if(numClicks == 1){
+                            if(expandableListView.isGroupExpanded(groupNum)) {
+                                expandableListView.collapseGroup(groupNum);
+                            }
+                            else{
+                                expandableListView.expandGroup(groupNum);
+                            }
+                        }
+                        numClicks = 0;
+                    }
+                };
+
+                if (numClicks == 1) {
+                    //Single click
+                    handler.postDelayed(r, 250);
+                } else if (numClicks == 2) {
+                    //Double click
+                    numClicks = 0;
+                    ((MainActivity)getActivity()).startAllExerciseLogsFragment(myExercises.get(groupNum));
+                }
+
+                return true;
             }
         });
-
         exerciseList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
@@ -86,6 +120,7 @@ public class FragmentWorkoutLog extends Fragment {
             }
         });
 
+        //Set log button action
         logButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,7 +130,7 @@ public class FragmentWorkoutLog extends Fragment {
                 if(repsNum.getText().toString().equals("")){
                     repsNum.setText("0");
                 }
-                logEntry.setWeight(Integer.decode(weightNum.getText().toString()));
+                logEntry.setWeight(weightNum.getText().toString());
                 logEntry.setNotes(notes.getText().toString().trim());
                 logEntry.setReps(repsNum.getText().toString().trim());
 
@@ -113,6 +148,9 @@ public class FragmentWorkoutLog extends Fragment {
                     } else {
                         clock.startStopWatch();
                     }
+                }
+                else{
+                    clock.startStopWatch();
                 }
 
                 logEntry.setSet(true);
@@ -138,6 +176,7 @@ public class FragmentWorkoutLog extends Fragment {
         setHasOptionsMenu(true);
 
 
+
         return rootView;
     }
 
@@ -145,7 +184,7 @@ public class FragmentWorkoutLog extends Fragment {
      * Needed to destroy any ongoing timers
      */
     @Override
-    public void onDestroyView(){
+    public void onDestroy(){
         super.onDestroyView();
         if(clock != null){
             clock.reset();
@@ -170,7 +209,10 @@ public class FragmentWorkoutLog extends Fragment {
 
         timerDisplay.setTextSize(24);
 
-        clock = new Clock(getActivity(), timerDisplay);
+        if(clock == null)
+            clock = new Clock(getActivity(), timerDisplay);
+        else
+            clock.setDisplay(timerDisplay);
 
         timerDisplay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,8 +224,6 @@ public class FragmentWorkoutLog extends Fragment {
 
             }
         });
-
-
     }
 
     /**
@@ -197,14 +237,28 @@ public class FragmentWorkoutLog extends Fragment {
         switch (item.getItemId()) {
             case R.id.saveButton:
 
-                DBLogHelper db = new DBLogHelper(getActivity());
+                //Checking that all exercises have been set if not prompt alert dialog
                 for(List<LogEntry> exercise : logs){
-                    for(LogEntry log : exercise){
-                        db.addLog(log);
+                    for(LogEntry log : exercise) {
+                        if(!log.isSet()) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle(R.string.confirmation_incomplete_workout)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .setMessage(R.string.incomplete_workout_body)
+                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            //user knows he hasn't completed all logs saves anyways
+                                            saveLogs();
+                                        }
+                                    })
+                                    .setNegativeButton(R.string.no, null);
+                            builder.create().show();
+                            return true;
+                        }
+
                     }
                 }
-                ((MainActivity)getActivity()).startAddWorkoutFragment(routine);
-
+                saveLogs();
                 return true;
 
             default:
@@ -246,14 +300,14 @@ public class FragmentWorkoutLog extends Fragment {
 
     /**
      * Creates a list of blank logs
-     * @param workouts - Used to calculate how many blank logs are needed
+     * @param exercises - Used to calculate how many blank logs are needed
      * @return 2d ArrayList where first level arrays represent the workout with the inner array representing the exercise sets
      */
-    public ArrayList<List<LogEntry>> createLogList(List<Workout> workouts){
+    public ArrayList<List<LogEntry>> createLogList(List<Exercise> exercises){
 
         ArrayList<List<LogEntry>> logs = new ArrayList<List<LogEntry>>();
 
-        for( Workout workout : workouts){
+        for( Exercise workout : exercises){
             ArrayList<LogEntry> exercise = new ArrayList<LogEntry>();
 
             for(int j = 0; j < workout.getSets(); j++){
@@ -264,10 +318,30 @@ public class FragmentWorkoutLog extends Fragment {
         return logs;
     }
 
+    private void saveLogs(){
+        DBLogHelper db = new DBLogHelper(getActivity());
+        for (List<LogEntry> exercise : logs) {
+            for (LogEntry log : exercise) {
+                if(!log.isSet()) {
+                    log.setReps("x");
+                    log.setWeight("x");
+                }
+                db.addLog(log);
+            }
+        }
+
+        //Update routine last modified
+        DBRoutineHelper dbRoutine = new DBRoutineHelper(getActivity());
+        routine.setLastModified();
+        dbRoutine.updateRoutine(routine);
+
+        ((MainActivity) getActivity()).finishFragment();
+    }
 
 
-    public void setWorkout(Workout myWorkout) {
-        this.workout = myWorkout;
+
+    public void setWorkout(Workout workout) {
+        this.workout = workout;
     }
     public void setRoutine(Routine routine) { this.routine = routine; }
 }

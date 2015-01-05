@@ -1,5 +1,7 @@
 package esequielherrera.mike;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -7,14 +9,16 @@ import java.util.Date;
  */
 public class LogEntry {
 
-    private int id, workoutId, setNum, weight, restTime;
+    private int id, workoutId, setNum, restTime;
     private boolean isSet = false;
-    private String reps, notes, timeStamp;
+
+
+    private String weight, reps, notes, timeStamp;
 
     public LogEntry(){
     }
 
-    public LogEntry(int id, int workoutId, int setNum, int weight, String reps, String notes, int restTime, String timeStamp) {
+    public LogEntry(int id, int workoutId, int setNum, String weight, String reps, String notes, int restTime, String timeStamp) {
         this.id = id;
         this.workoutId = workoutId;
         this.setNum = setNum;
@@ -49,11 +53,11 @@ public class LogEntry {
         this.setNum = setNum;
     }
 
-    public int getWeight() {
+    public String getWeight() {
         return weight;
     }
 
-    public void setWeight(int weight) {
+    public void setWeight(String weight) {
         this.weight = weight;
     }
 
@@ -91,19 +95,29 @@ public class LogEntry {
         this.notes = notes;
     }
 
-    public String getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(String timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-
     public boolean isSet() {
         return isSet;
     }
 
     public void setSet(boolean isSet) {
         this.isSet = isSet;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public String getDate() {
+          SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        Date date;
+        try {
+            date = timeStampFormat.parse(getTimeStamp());
+        }
+        catch(ParseException e){
+            return null;
+        }
+        SimpleDateFormat newFormat = new SimpleDateFormat( "MMM dd yyy");
+        return newFormat.format(date);
     }
 }

@@ -21,7 +21,6 @@ import java.util.List;
  */
 public class FragmentWorkout extends Fragment {
     private Routine routine;
-    private Workout workout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,7 +47,7 @@ public class FragmentWorkout extends Fragment {
         // handle item selection
         switch (item.getItemId()) {
             case R.id.new_workout:
-                ((MainActivity)getActivity()).startAddExerciseFragment(routine, workout);
+                ((MainActivity)getActivity()).startAddExerciseFragment(routine, null);
                 return true;
             case R.id.progress:
                 ((MainActivity)getActivity()).startGalleryFragment(routine);
@@ -71,7 +70,7 @@ public class FragmentWorkout extends Fragment {
 
     private void setListAdapter(ListView list){
         DBWorkoutHelper db = new DBWorkoutHelper(getActivity());
-        List<Workout> workouts = db.getRoutineWorkouts(this.routine.getId());
+        List<Workout> workouts = db.getRoutineWorkouts(routine);
 
         final ArrayAdapter adapter = new ListWorkoutAdapter(getActivity(), workouts);
         list.setAdapter(adapter);
@@ -81,7 +80,7 @@ public class FragmentWorkout extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> l, View v, int position,
                                     long id) {
-                ((MainActivity)getActivity()).startWorkoutLogFragment(routine, ((Workout)v.getTag()));
+                ((MainActivity)getActivity()).startWorkoutLogFragment(routine, ((Workout)adapter.getItem(position)));
             }
         });
 
@@ -90,7 +89,7 @@ public class FragmentWorkout extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> l, View v, int position,
                                            long id) {
-                optionBuilder((Workout) v.getTag(), adapter);
+                optionBuilder((Workout)adapter.getItem(position), adapter);
                 return true;
             }
         });
@@ -143,7 +142,6 @@ public class FragmentWorkout extends Fragment {
     public void setRoutine(Routine routine){
         this.routine = routine;
     }
-    public void setWorkout(Workout workout) { this.workout = workout; }
 
 
 }

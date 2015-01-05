@@ -21,7 +21,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  * Created by esequielherrera-ortiz on 9/29/14.
@@ -154,6 +153,7 @@ public class FragmentRoutine extends Fragment {
 
         builder.setTitle("Rename");
         builder.setView(input);
+        input.setText(rtn.getName());
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String value = input.getText().toString();
@@ -169,48 +169,48 @@ public class FragmentRoutine extends Fragment {
         builder.show();
     }
 
-    /**
-     * Returns an ArrayList with routines ordered by when tehy were last modified
-     * @return
-     */
-    private List<Routine> getRoutinesByLastModified(){
-        List<Routine> routineList = new ArrayList<Routine>();
-        List<Integer> routineIds = new ArrayList<Integer>();
-
-        //All the Database helpers being used
-        DBLogHelper logDB = new DBLogHelper(getActivity());
-        DBWorkoutHelper workoutDB = new DBWorkoutHelper(getActivity());
-        DBRoutineHelper routineDB = new DBRoutineHelper(getActivity());
-
-        //Getting log lists in descending order by timestamp removing duplicates of matching workout id
-        List<LogEntry> logList = logDB.getWorkoutsByLastModified();
-
-        if(logList != null && logList.size() > 0){
-
-            //Iterate through logs and build routine id list and make sure the workouts they belong to wasn't deleted
-            for(LogEntry log : logList){
-                Workout workout = workoutDB.getWorkout(log.getWorkoutId());
-                if(workout != null) {
-                    routineIds.add(workout.getRoutineId());
-                }
-
-                //Remove duplicate routine id's while preserving order
-                LinkedHashSet<Integer> tempSet = new LinkedHashSet<Integer>(routineIds);
-                ArrayList<Integer> uniqueRoutines = new ArrayList<Integer>(tempSet);
-
-                //Obtain routines using routine ids
-                for(int i : uniqueRoutines){
-                    Routine routine = routineDB.getRoutine(i);
-                    if(routine != null) {
-                        routineList.add(routine);
-                    }
-                }
-            }
-
-
-        }
-        return routineList;
-    }
+//    /**
+//     * Returns an ArrayList with routines ordered by when tehy were last modified
+//     * @return
+//     */
+//    private List<Routine> getRoutinesByLastModified(){
+//        List<Routine> routineList = new ArrayList<Routine>();
+//        List<Integer> routineIds = new ArrayList<Integer>();
+//
+//        //All the Database helpers being used
+//        DBLogHelper logDB = new DBLogHelper(getActivity());
+//        DBExerciseHelper workoutDB = new DBExerciseHelper(getActivity());
+//        DBRoutineHelper routineDB = new DBRoutineHelper(getActivity());
+//
+//        //Getting log lists in descending order by timestamp removing duplicates of matching workout id
+//        List<LogEntry> logList = logDB.getWorkoutsByLastModified();
+//
+//        if(logList != null && logList.size() > 0){
+//
+//            //Iterate through logs and build routine id list and make sure the workouts they belong to wasn't deleted
+//            for(LogEntry log : logList){
+//                Exercise exercise = workoutDB.getWorkout(log.getWorkoutId());
+//                if(exercise != null) {
+//                    routineIds.add(exercise.getRoutineId());
+//                }
+//
+//                //Remove duplicate routine id's while preserving order
+//                LinkedHashSet<Integer> tempSet = new LinkedHashSet<Integer>(routineIds);
+//                ArrayList<Integer> uniqueRoutines = new ArrayList<Integer>(tempSet);
+//
+//                //Obtain routines using routine ids
+//                for(int i : uniqueRoutines){
+//                    Routine routine = routineDB.getRoutine(i);
+//                    if(routine != null) {
+//                        routineList.add(routine);
+//                    }
+//                }
+//            }
+//
+//
+//        }
+//        return routineList;
+//    }
 
     /**
      * deleteConfirmation - Promps the user witha  dialogue box to confirm action of delete a routine

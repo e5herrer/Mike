@@ -42,7 +42,7 @@ public class ListRoutinesAdapter extends ArrayAdapter<Routine> {
             }
         }
 
-        //First routine has a custom list view
+        //First routine has a custom different view
         if (position == 0) {
             Routine routine = routines.get(position);
 
@@ -67,7 +67,7 @@ public class ListRoutinesAdapter extends ArrayAdapter<Routine> {
                 if (routine.getAfterPic() != null) {
                     Bitmap pic2 = BitmapFactory.decodeFile(routine.getAfterPic());
                     if (pic2 != null) {
-                        Bitmap picScaled2 = Bitmap.createScaledBitmap(pic2, 250, 200, true);
+                        Bitmap picScaled2 = Bitmap.createScaledBitmap(pic2, 200, 250, true);
                         afterPicHolder.setImageBitmap(picScaled2);
                     } else {
                         routine.setAfterPic(null);
@@ -80,6 +80,7 @@ public class ListRoutinesAdapter extends ArrayAdapter<Routine> {
             //Needed because before pic would carry over when main view was deleted
             else if(beforePicHolder.getWidth() != 0){
                 beforePicHolder.setImageBitmap(null);
+
             }
 
             //Set days on the routine

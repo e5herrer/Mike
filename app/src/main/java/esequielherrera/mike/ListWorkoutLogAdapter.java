@@ -18,7 +18,7 @@ import java.util.List;
 public class ListWorkoutLogAdapter extends BaseExpandableListAdapter {
 
     private Context context;
-    private List<Workout> workouts;
+    private List<Exercise> exercises;
     private ArrayList<List<LogEntry>> logs;
     private final ArrayList<List<LogEntry>> previousLogs;
 
@@ -28,42 +28,42 @@ public class ListWorkoutLogAdapter extends BaseExpandableListAdapter {
 
     public ListWorkoutLogAdapter(Context context, Workout workout, ArrayList<List<LogEntry>> logs) {
         this.context = context;
-        DBWorkoutHelper db = new DBWorkoutHelper(context);
-        this.workouts = db.getWorkoutExercises(workout.getRoutineId(), workout.getName());
+        DBExerciseHelper db = new DBExerciseHelper(context);
+        this.exercises = db.getWorkoutExercises(workout);
         this.logs = logs;
 
-        previousLogs = getPreviousLogs(workouts);
+        previousLogs = getPreviousLogs(exercises);
     }
 
     @Override
     public int getGroupCount() {
-        if(workouts != null) {
-            return workouts.size();
+        if(exercises != null) {
+            return exercises.size();
         }
         return 0;
     }
 
     @Override
     public int getChildrenCount(int i) {
-        if(workouts != null){
-            return workouts.get(i).getSets();
+        if(exercises != null){
+            return exercises.get(i).getSets();
         }
         return -1;
     }
 
     @Override
     public Object getGroup(int i) {
-        return workouts.get(i);
+        return exercises.get(i);
     }
 
     @Override
     public Object getChild(int i, int i2) {
-        return workouts.get(i);
+        return exercises.get(i);
     }
 
     @Override
     public long getGroupId(int i) {
-        return workouts.get(i).getId();
+        return exercises.get(i).getId();
     }
 
     @Override
@@ -80,7 +80,7 @@ public class ListWorkoutLogAdapter extends BaseExpandableListAdapter {
     public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
         TextView exerciseName;
         TextView setsRepsRest;
-        Workout workout = workouts.get(i);
+        Exercise exercise = exercises.get(i);
 
         if(view == null){
             LayoutInflater inflater = ((Activity)context).getLayoutInflater();
@@ -89,10 +89,10 @@ public class ListWorkoutLogAdapter extends BaseExpandableListAdapter {
 
         exerciseName = (TextView)view.findViewById(R.id.exerciseName);
         setsRepsRest = (TextView)view.findViewById(R.id.setsRepsRest);
-        exerciseName.setText(workout.getExerciseName());
-        setsRepsRest.setText("Sets: " + workout.getSets() + " Reps: " + workout.getReps() +
-                " Rest: " + workout.getRestTime());
-        view.setTag(workout);
+        exerciseName.setText(exercise.getName());
+        setsRepsRest.setText("Sets: " + exercise.getSets() + " Reps: " + exercise.getReps() +
+                " Rest: " + exercise.getRestTime());
+        view.setTag(exercise);
         return view;
     }
 
@@ -148,20 +148,20 @@ public class ListWorkoutLogAdapter extends BaseExpandableListAdapter {
 
 
         logEntry = logs.get(i).get(i2);
-        logEntry.setWorkoutId(workouts.get(i).getId());
+        logEntry.setWorkoutId(exercises.get(i).getId());
         logEntry.setSetNum(i2);
         view.setTag(logEntry);
         return view;
     }
 
-    public ArrayList<List<LogEntry>> getPreviousLogs(List<Workout> workouts){
+    public ArrayList<List<LogEntry>> getPreviousLogs(List<Exercise> exercises){
         ArrayList<List<LogEntry>> previousLogs = new ArrayList<List<LogEntry>>();
         DBLogHelper db = new DBLogHelper(context);
 
-        for(int i = 0; i < workouts.size(); i++){
+        for(int i = 0; i < exercises.size(); i++){
             ArrayList<LogEntry> exercise = new ArrayList<LogEntry>();
-            for(int j = 0; j < workouts.get(i).getSets(); j++){
-                exercise.add(db.getMostRecentLog(workouts.get(i).getId(), j));
+            for(int j = 0; j < exercises.get(i).getSets(); j++){
+                exercise.add(db.getMostRecentLog(exercises.get(i).getId(), j));
             }
             previousLogs.add(exercise);
         }

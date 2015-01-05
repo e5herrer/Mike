@@ -12,20 +12,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by esequielherrera-ortiz on 11/20/14.
  */
-public class ListGalleryAdapter extends ArrayAdapter<ProgressPic> {
+public class ListProgressReportAdapter extends ArrayAdapter<ProgressReport> {
 
     Context context;
-    ArrayList<List<ProgressPic>> gallery;
-
-    public ListGalleryAdapter(Context context, ArrayList<ProgressPic> pics){
-        super(context, R.layout.fragment_gallery, pics);
+    ArrayList<ProgressReport> reports;
+    public ListProgressReportAdapter(Context context, ArrayList<ProgressReport> reports){
+        super(context, R.layout.fragment_progress_reports, reports);
         this.context = context;
-        orderPhotos(pics);
+        this.reports = reports;
     }
 
     @Override
@@ -40,10 +38,15 @@ public class ListGalleryAdapter extends ArrayAdapter<ProgressPic> {
         LinearLayout album = (LinearLayout) convertView.findViewById(R.id.album);
         album.removeAllViews();
 
-        if(gallery.get(position).size() != 0)
-            date.setText(gallery.get(position).get(0).getDate());
+        ProgressReport report = reports.get(position);
 
-        for (ProgressPic pic : gallery.get(position)) {
+        if(report.getWeight().equals(""))
+            date.setText(report.getDate());
+        else
+            date.setText(report.getDate() + " - " + report.getWeight());
+
+
+        for (ProgressPic pic : report.getAlbum()) {
 
             Bitmap picBitmap = pic.getBitmap(200, 250);
             if (picBitmap != null) {
@@ -63,38 +66,6 @@ public class ListGalleryAdapter extends ArrayAdapter<ProgressPic> {
         }
         return convertView;
 
-    }
-
-    public void orderPhotos(ArrayList<ProgressPic> allPics){
-        ArrayList<List<ProgressPic>> gallery = new ArrayList<List<ProgressPic>>();
-        ArrayList<ProgressPic> album = new ArrayList<ProgressPic>();
-
-        String date;
-
-        date = allPics.get(0).getDate();
-
-        for (ProgressPic pic : allPics) {
-            if (date.equals(pic.getDate())) {
-                album.add(pic);
-            }
-            else{
-                gallery.add(album);
-                album = new ArrayList<ProgressPic>();
-                date = pic.getDate();
-            }
-
-        }
-        gallery.add(album);
-
-        this.gallery = gallery;
-    }
-
-    public void addImage(ProgressPic pic){
-        gallery.get(0).add(pic);
-    }
-    @Override
-    public int getCount(){
-        return gallery.size();
     }
 
 }

@@ -28,7 +28,6 @@ public class ListWorkoutAdapter extends ArrayAdapter<Workout> {
         if(convertView == null){
             LayoutInflater inflater = ((Activity)context).getLayoutInflater();
             convertView = inflater.inflate(R.layout.workout_list_item, parent, false);
-            convertView.setTag(workouts.get(position));
         }
 
         name = (TextView)convertView.findViewById(R.id.name);
@@ -36,6 +35,7 @@ public class ListWorkoutAdapter extends ArrayAdapter<Workout> {
 
         return convertView;
     }
+
 
 
 }

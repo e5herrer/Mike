@@ -40,4 +40,7 @@
 
     <string name="new_album">New Album</string>
 
+    <string name="confirmation_incomplete_workout">Incomplete Workout</string>
+    <string name="incomplete_workout_body">You haven\'t completed every exercise. Do you still want to save workout?</string>
+
 </resources>

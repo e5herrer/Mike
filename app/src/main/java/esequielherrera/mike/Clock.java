@@ -7,6 +7,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.view.Gravity;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ public class Clock {
     private long startTime;
     private Handler mHandler = new Handler();
     private final int REFRESH_RATE = 100;
+    private int displayWidth;
 
 
 
@@ -44,6 +46,10 @@ public class Clock {
      */
     public void startTimer(int seconds){
 
+        if(displayWidth == 0)
+            displayWidth = this.display.getWidth();
+
+
         if(!onStandby()){
             reset();
         }
@@ -61,7 +67,9 @@ public class Clock {
 
             @Override
             public void onFinish() {
-                display.setText(" Stop ");
+                display.setGravity(Gravity.CENTER_HORIZONTAL);
+                display.setText("Stop");
+                display.setWidth(displayWidth);
 
                 if (alarm != null)
                     alarm.start();
@@ -75,6 +83,10 @@ public class Clock {
      *  startStopWatch - Begins a stop watch and refreshes the display
      */
     public void startStopWatch() {
+
+        if(displayWidth == 0)
+            displayWidth = this.display.getWidth();
+
 
         if(!onStandby()){
             reset();
@@ -195,6 +207,13 @@ public class Clock {
         return mMediaPlayer;
     }
 
+    public void setDisplay(TextView display){
+        String time = this.display.getText().toString();
+        this.display = display;
+        display.setGravity(Gravity.CENTER_HORIZONTAL);
+        this.display.setText(time);
+        this.display.setWidth(displayWidth);
+    }
 
     /**
      * @return - Returns true if no timer and alarm are currently running else returns false

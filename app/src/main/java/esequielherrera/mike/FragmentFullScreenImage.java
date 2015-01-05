@@ -27,6 +27,12 @@ public class FragmentFullScreenImage extends Fragment {
         Bitmap image = BitmapFactory.decodeFile(imagePath);
         ImageView imgView = new ImageView(getActivity());
         imgView.setImageBitmap(image);
+        imgView.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity)getActivity()).finishFragment();
+            }
+        });
 
         return imgView;
 

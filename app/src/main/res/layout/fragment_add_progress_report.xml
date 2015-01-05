@@ -8,21 +8,9 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight=".5"
-        android:orientation="vertical">
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/routineName"
-            android:hint="@string/routine_name_hint"
-            android:maxLength="50"
-            android:layout_margin="20dp"
-            android:maxLines="2"
-            android:inputType="textMultiLine|textCapWords"
-            android:gravity="center_horizontal"
-            android:textSize="30pt"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="15dp">
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -60,9 +48,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:orientation="vertical"
-        android:layout_weight=".5">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -86,12 +73,12 @@
                 android:fillViewport="true"
                 android:measureAllChildren="false"
                 android:scrollbars="none" >
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:id="@+id/horizontalGallery">
-                    </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:id="@+id/horizontalGallery">
+                </LinearLayout>
 
             </HorizontalScrollView>
 

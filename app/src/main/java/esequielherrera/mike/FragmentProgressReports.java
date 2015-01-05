@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,32 +12,31 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
 /**
  * Created by esequielherrera-ortiz on 11/20/14.
  */
-public class FragmentProgressPicGallery extends Fragment{
-    private ArrayList<ProgressPic> gallery;
+public class FragmentProgressReports extends Fragment{
+    private ArrayList<ProgressReport> reports;
     private Routine routine;
     private final int REQUEST_CAMERA = 1;
     private ListView galleryView;
     private String newImage;
+    private ProgressReport todaysReport = new ProgressReport();
     String date = new Date().toString();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_gallery, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_progress_reports, container, false);
         galleryView = (ListView)rootView.findViewById(R.id.gallery);
 
-        gallery = getGallery();
+        reports = getReports();
 
-        ListGalleryAdapter adapter = new ListGalleryAdapter(getActivity(), gallery);
+        ListProgressReportAdapter adapter = new ListProgressReportAdapter(getActivity(), reports);
         galleryView.setAdapter(adapter);
 
         setHasOptionsMenu(true);
@@ -69,12 +67,7 @@ public class FragmentProgressPicGallery extends Fragment{
         switch (item.getItemId()) {
             case R.id.new_album:
 
-                Intent imageIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-
-                newImage = ProgressPic.createImageFile();
-
-                imageIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(newImage)));
-                startActivityForResult(imageIntent, REQUEST_CAMERA);
+                ((MainActivity)getActivity()).startAddProgressReportFragment(routine);
 
                 return true;
 
@@ -96,14 +89,18 @@ public class FragmentProgressPicGallery extends Fragment{
                     ProgressPic.fixOrientationToPortrait(getActivity(), newImage);
 
                     //add new photo to db
-                    DBProgressPicHandler db = new DBProgressPicHandler(getActivity());
-                    ProgressPic pic = new ProgressPic(routine.getId(), newImage, date);
-                    gallery.add(pic);
+                    DBProgressReportHandler db = new DBProgressReportHandler(getActivity());
+                    ProgressPic pic = new ProgressPic(newImage);
+                    if(reports.get(0).getDate().equals(todaysReport.getDate())){
+                        reports.get(0).addPhoto(pic);
+                    }
+                    else{
+                        todaysReport.addPhoto(pic);
+                        todaysReport.setRoutineId(routine.getId());
+                        reports.add(0,todaysReport);
+                    }
 
-                    db.addProgressPic(pic);
-
-                    ((ListGalleryAdapter) galleryView.getAdapter()).orderPhotos(gallery);
-                    ((ListGalleryAdapter) galleryView.getAdapter()).notifyDataSetChanged();
+                    ((ListProgressReportAdapter) galleryView.getAdapter()).notifyDataSetChanged();
 
                     break;
 
@@ -111,9 +108,9 @@ public class FragmentProgressPicGallery extends Fragment{
         }
     }
 
-    private ArrayList<ProgressPic> getGallery(){
-        DBProgressPicHandler db = new DBProgressPicHandler(getActivity());
-        return db.getAllRoutinePics(routine.getId());
+    private ArrayList<ProgressReport> getReports(){
+        DBProgressReportHandler db = new DBProgressReportHandler(getActivity());
+        return db.getAllRoutineReports(routine.getId());
     }
 
     public void setRoutine(Routine routine) {

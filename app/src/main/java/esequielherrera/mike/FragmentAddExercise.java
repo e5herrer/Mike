@@ -25,17 +25,17 @@ import java.util.List;
  * Created by esequielherrera-ortiz on 9/26/14.
  */
 public class FragmentAddExercise extends Fragment {
-    private List<Workout> allExercises = new ArrayList<Workout>();
-    private List<Workout> workouts = new ArrayList<Workout>();
+    private List<Exercise> allExercises = new ArrayList<Exercise>();
+    private List<Exercise> exercises = new ArrayList<Exercise>();
     private EditText workoutName;
     private EditText sets;
     private EditText reps;
     private EditText restTime;
     private EditText exerciseName;
     private Routine routine;
-    private Workout workout;
-    private Workout editExercise;
     private ListView listWorkouts;
+    private Workout workout;
+    private Exercise editExercise;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,14 +46,13 @@ public class FragmentAddExercise extends Fragment {
         sets = (EditText) rootView.findViewById(R.id.sets);
         reps = (EditText) rootView.findViewById(R.id.reps);
         restTime = (EditText) rootView.findViewById(R.id.restTime);
-
         listWorkouts = (ListView) rootView.findViewById(R.id.listWorkouts);
         final ImageButton addButton = (ImageButton) rootView.findViewById(R.id.addButton);
 
         addButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addExercise(workoutName, exerciseName, sets, reps, restTime);
+                addExercise(exerciseName, sets, reps, restTime);
 
                 ((ArrayAdapter)listWorkouts.getAdapter()).notifyDataSetChanged();
 
@@ -82,7 +81,7 @@ public class FragmentAddExercise extends Fragment {
 
         if(workout != null){
             workoutName.setText(workout.getName());
-            allExercises = new DBWorkoutHelper(getActivity()).getWorkoutExercises(workout.getRoutineId(), workout.getName());
+            allExercises = new DBExerciseHelper(getActivity()).getWorkoutExercises(workout);
         }
 
         //Signaling Activity to call onCreateOptionMenu to setup action bar buttons
@@ -123,12 +122,13 @@ public class FragmentAddExercise extends Fragment {
         switch (item.getItemId()) {
             case R.id.saveButton:
 
-                DBWorkoutHelper db = new DBWorkoutHelper(getActivity());
-                String name = workoutName.getText().toString().trim();
+                DBExerciseHelper db = new DBExerciseHelper(getActivity());
+                DBWorkoutHelper workoutDB = new DBWorkoutHelper(getActivity());
+                String workoutName = this.workoutName.getText().toString().trim();
 
-                if(name.equals("")){
+                if(workoutName.equals("")){
                     Toast.makeText(getActivity(), "Please include a workout name", Toast.LENGTH_LONG).show();
-                    workoutName.requestFocus();
+                    this.workoutName.requestFocus();
                     return false;
                 }
                 if(allExercises.size() == 0){
@@ -136,14 +136,28 @@ public class FragmentAddExercise extends Fragment {
                     exerciseName.requestFocus();
                     return false;
                 }
-                for(Workout wrk : workouts){
-                    wrk.setName(name);
-                    db.addWorkout(wrk);
-                }
-                //Changed workout name so need to update the ones the exercises that were previously inserted to db
-                db.updateWorkoutNames(allExercises, name);
 
-                //Update p
+                //Creating a new Workout to database
+                if(workout == null){
+                    workout = new Workout(routine.getId(), workoutName);
+                    workoutDB.addWorkout(workout);
+                }
+                else{
+                    workout.setName(workoutName);
+                    workoutDB.updateWorkout(workout);
+                }
+
+
+                //Adding foreign key to exercises
+                for(Exercise exercise : allExercises){
+                    if(exercise.getId() >= 0) {
+                        db.updateExercise(exercise);
+                    }
+                    else{
+                        exercise.setWorkoutId(workout.getId());
+                        db.addExercise(exercise);
+                    }
+                }
 
                 ((MainActivity)getActivity()).finishFragment();
                 ((MainActivity)getActivity()).startAddWorkoutFragment(routine);
@@ -156,17 +170,14 @@ public class FragmentAddExercise extends Fragment {
     /**
      * Description - This method extracts the information provided in the text fields, checks the inputs
      *               for validity, and stores it in our exercise buffer.
-     * @param wName - Workout Name
      * @param e - Exercise Name
      * @param iSets - Number of sets
      * @param iReps - Number of Reps
      * @param iRestTime - Rest Time in seconds
      * return - true if new exercise was successfully created else return false
      */
-    public boolean addExercise(EditText wName, EditText e,
+    public boolean addExercise(EditText e,
                            EditText iSets, EditText iReps, EditText iRestTime){
-        int routineId = routine.getId();
-        String workoutName = wName.getText().toString().trim();
         String exerciseName = e.getText().toString().trim();
         String sets = iSets.getText().toString().trim();
         String reps = iReps.getText().toString().trim();
@@ -199,12 +210,12 @@ public class FragmentAddExercise extends Fragment {
 
         //Checking if we're editing an exisiting field or creating new
         if(editExercise == null) {
-            Workout temp = new Workout(routineId, workoutName, exerciseName, Integer.decode(sets), reps, Integer.decode(restTime));
-            this.workouts.add(temp);
+            Exercise temp = new Exercise(exerciseName, Integer.decode(sets), reps, Integer.decode(restTime));
+            this.exercises.add(temp);
             this.allExercises.add(temp);
         }
         else{
-            editExercise.setExerciseName(exerciseName);
+            editExercise.setName(exerciseName);
             editExercise.setReps(reps);
             editExercise.setSets(Integer.decode(sets));
             editExercise.setRestTime(Integer.decode(restTime));
@@ -259,7 +270,7 @@ public class FragmentAddExercise extends Fragment {
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
-                Workout clickedExercise = allExercises.get(index);
+                Exercise clickedExercise = allExercises.get(index);
 
                 //If selected is the same then clear selection
                 if(clickedExercise == editExercise) {
@@ -273,7 +284,7 @@ public class FragmentAddExercise extends Fragment {
                 else { //fill the input area
                     editExercise = clickedExercise;
                     ((ListExerciseAdapter)list.getAdapter()).setSelected(index);
-                    exerciseName.setText(editExercise.getExerciseName());
+                    exerciseName.setText(editExercise.getName());
                     sets.setText(""+editExercise.getSets());
                     reps.setText(editExercise.getReps());
                     restTime.setText(""+editExercise.getRestTime());
@@ -287,12 +298,12 @@ public class FragmentAddExercise extends Fragment {
 
     /**
      * Description - Called when an exercise is long clicked. Method prompts an alert dialogue for options.
-     * @param workout - item that was long clicked
+     * @param exercise - item that was long clicked
      * @param adapter - reference passed to notify of data change
      */
-    public void optionBuilder(final Workout workout, final ArrayAdapter adapter){
+    public void optionBuilder(final Exercise exercise, final ArrayAdapter adapter){
         final String [] items = new String [] { "Delete" };
-        final DBWorkoutHelper db = new DBWorkoutHelper(getActivity());
+        final DBExerciseHelper db = new DBExerciseHelper(getActivity());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("What would you like to do?");
@@ -300,8 +311,8 @@ public class FragmentAddExercise extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int item) {
                 if (items[item].equals("Delete")) {
-                    db.deleteWorkout(workout);
-                    adapter.remove(workout);
+                    db.deleteExercise(exercise);
+                    adapter.remove(exercise);
                     dialog.dismiss();
                 }
             }

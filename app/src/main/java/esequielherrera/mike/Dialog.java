@@ -10,7 +10,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by esequielherrera-ortiz on 11/10/14.
  */
-public class Dialogs extends DialogFragment {
+public class Dialog extends DialogFragment {
 
     public static AlertDialog confirmation(final Context context){
 

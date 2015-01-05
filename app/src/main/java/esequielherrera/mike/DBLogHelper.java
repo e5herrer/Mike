@@ -75,16 +75,21 @@ public class DBLogHelper extends SQLiteOpenHelper{
         LogEntry logEntry;
         SQLiteDatabase db = getReadableDatabase();
 
-        Cursor cursor = db.query(TABLE_LOG_ENTRY, new String[] {KEY_ID, KEY_WORKOUT_ID, KEY_SET_NUM, KEY_WEIGHT,
-                KEY_REPS, KEY_NOTES, KEY_REST_TIME, KEY_TIME_STAMP}, KEY_WORKOUT_ID + "=?", new String[] { String.valueOf(id)}, null, null, null, null);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_LOG_ENTRY + " WHERE " + KEY_WORKOUT_ID +
+                "=?  ORDER BY " + KEY_TIME_STAMP + " DESC", new String[]{"" + id});
 
         if (cursor != null && cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            for( int i =0 ; i < cursor.getCount(); i++) {
-                logEntry = new LogEntry(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getInt(3),
-                        cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getString(7));
-                logs.add(logEntry);
-                cursor.moveToNext();
+            try {
+                cursor.moveToFirst();
+                for (int i = 0; i < cursor.getCount(); i++) {
+                    logEntry = new LogEntry(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getString(3),
+                            cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getString(7));
+                    logs.add(logEntry);
+                    cursor.moveToNext();
+                }
+            }
+            catch(Exception e){
+                return null;
             }
         }
         db.close();
@@ -104,7 +109,7 @@ public class DBLogHelper extends SQLiteOpenHelper{
 
                 //Because we use Order by Desc cursor can return the empty set resulting in null pointer exception.
                 try {
-                    logEntry = new LogEntry(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getInt(3),
+                    logEntry = new LogEntry(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getString(3),
                             cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getString(7));
                 }
                 catch(Exception e){
@@ -134,7 +139,7 @@ public class DBLogHelper extends SQLiteOpenHelper{
                 //Because we use Order by Desc cursor can return the empty set resulting in null pointer exception.
                 try {
                     do {
-                        workoutLogs.add(new LogEntry(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getInt(3),
+                        workoutLogs.add(new LogEntry(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getString(3),
                                 cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getString(7)));
                     } while(cursor.moveToNext());
 

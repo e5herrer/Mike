@@ -111,16 +111,11 @@ public class DBRoutineHelper extends SQLiteOpenHelper {
         db.delete(TABLE_ROUTINE, KEY_ID + "=?", new String[] {String.valueOf(routine.getId())});
         db.close();
         DBWorkoutHelper workoutDB = new DBWorkoutHelper(context);
-        List<Workout> workouts = workoutDB.getRoutineWorkouts(routine.getId());
+        List<Workout> workouts = workoutDB.getRoutineWorkouts(routine);
         for(Workout w : workouts){
             workoutDB.deleteWorkout(w);
         }
-        DBProgressPicHandler picDB = new DBProgressPicHandler(context);
-        List<ProgressPic> pics = picDB.getAllRoutinePics(routine.getId());
-        for(ProgressPic p : pics){
-            picDB.deleteProgressPic(p);
-            ProgressPic.deleteGallaryImage(context, p.getPath());
-        }
+
     }
 
     public int updateRoutine(Routine routine){
@@ -131,6 +126,8 @@ public class DBRoutineHelper extends SQLiteOpenHelper {
         values.put(KEY_NAME, routine.getName());
         values.put(KEY_START_DATE, routine.getStartDate());
         values.put(KEY_LAST_MODIFIED, getCurrentDate());
+        values.put(KEY_BEFORE_PIC,routine.getBeforePic());
+        values.put(KEY_AFTER_PIC, routine.getAfterPic());
 
         return db.update(TABLE_ROUTINE, values, KEY_ID + "=?", new String[] {String.valueOf(routine.getId())});
     }
@@ -154,12 +151,13 @@ public class DBRoutineHelper extends SQLiteOpenHelper {
 
     }
 
-//    private void resetTable(){
-//        SQLiteDatabase db = getWritableDatabase();
-//        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROUTINE);
-//        db.execSQL(KEY_CREATE_TABLE);
-//        db.close();
-//    }
+
+    private void resetTable(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROUTINE);
+        db.execSQL(KEY_CREATE_TABLE);
+        db.close();
+    }
 
     private String getCurrentDate(){
         DateFormat df = new SimpleDateFormat("dd MM yyyy");

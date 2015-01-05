@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class MainActivity extends Activity {
     public enum FragmentTags{
         FragmentAddExercise, FragmentAddRoutine, FragmentRoutine, FragmentWorkout, FragmentWorkoutLog,
-        FragmentProgresssPicGallery, FragmentFullScreenImage
+        FragmentProgresssPicGallery, FragmentFullScreenImage, FragmentAddProgressReport, FragmentAllExerciseLogs
     }
 
     ArrayList<FragmentTags> fragmentStack = new ArrayList<FragmentTags>();
@@ -35,10 +35,6 @@ public class MainActivity extends Activity {
             if(routine == null) {
                 startAddRoutineFragment();
             }
-
-            else if(new DBWorkoutHelper(this).getRoutineWorkouts(routine.getId()).size() <= 0){
-                startRoutineFragment();
-            }
             else{
                 startRoutineFragment();
             }
@@ -53,7 +49,7 @@ public class MainActivity extends Activity {
             case FragmentWorkoutLog:
             case FragmentAddExercise:
 
-                Dialogs.confirmation(this).show();
+                Dialog.confirmation(this).show();
                 break;
 
             case FragmentRoutine:
@@ -164,7 +160,7 @@ public class MainActivity extends Activity {
     }
 
     public void startGalleryFragment(Routine routine){
-        FragmentProgressPicGallery newFragment = new FragmentProgressPicGallery();
+        FragmentProgressReports newFragment = new FragmentProgressReports();
         newFragment.setRoutine(routine);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         fragmentStack.add(FragmentTags.FragmentProgresssPicGallery);
@@ -178,6 +174,26 @@ public class MainActivity extends Activity {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         fragmentStack.add(FragmentTags.FragmentFullScreenImage);
         transaction.replace(R.id.container, newFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    public void startAddProgressReportFragment(Routine routine){
+        FragmentAddProgressReport newFragment = new FragmentAddProgressReport();
+        newFragment.setRoutine(routine);
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        fragmentStack.add(FragmentTags.FragmentAddProgressReport);
+        transaction.replace(R.id.container, newFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    public void startAllExerciseLogsFragment(Exercise exercise){
+        FragmentAllExerciseLogs fragment = new FragmentAllExerciseLogs();
+        fragment.setExercise(exercise);
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        fragmentStack.add(FragmentTags.FragmentAllExerciseLogs);
+        transaction.replace(R.id.container, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }

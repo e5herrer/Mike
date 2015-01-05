@@ -35,16 +35,17 @@ public class Routine implements Serializable {
      * @return - String representation of the age of routine in days.
      */
     public  String ageInDays(){
-        SimpleDateFormat myFormat = new SimpleDateFormat("dd MM yyyy");
+        SimpleDateFormat myFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
         try {
             if(startDate == null){
-                return "0";
+                return "-";
             }
             Date date1 = myFormat.parse(startDate);
             Date date2 = new Date();
             long diff = date2.getTime() - date1.getTime();
-            return Long.toString(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+            return Long.toString(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) + 1);
         }
+
         catch(ParseException e){
             return "0";
         }
@@ -77,8 +78,12 @@ public class Routine implements Serializable {
         return lastModified;
     }
 
-    public void setLastModified(String lastModified) {
-        this.lastModified = lastModified;
+    public void setLastModified() {
+        Date date = new Date();
+        if(startDate == null){
+            startDate = date.toString();
+        }
+        lastModified = date.toString();
     }
 
     public String getBeforePic() {

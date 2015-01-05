@@ -11,16 +11,16 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import java.util.List;
 
-public class ListExerciseAdapter extends ArrayAdapter<Workout> {
+public class ListExerciseAdapter extends ArrayAdapter<Exercise> {
     private final Context context;
-    private final List<Workout> workouts;
+    private final List<Exercise> exercises;
     private  int selected = -1;
 
 
-    public ListExerciseAdapter(Context context, List<Workout> workouts) {
-        super(context, R.layout.exercise_list_item, workouts);
+    public ListExerciseAdapter(Context context, List<Exercise> exercises) {
+        super(context, R.layout.exercise_list_item, exercises);
         this.context = context;
-        this.workouts = workouts;
+        this.exercises = exercises;
     }
 
     @Override
@@ -31,6 +31,7 @@ public class ListExerciseAdapter extends ArrayAdapter<Workout> {
             LayoutInflater inflater = ((Activity)context).getLayoutInflater();
             convertView = inflater.inflate(R.layout.exercise_list_item, parent, false);
         }
+
 
         //Alternate row color
         //if selected highlight in blue
@@ -57,8 +58,8 @@ public class ListExerciseAdapter extends ArrayAdapter<Workout> {
             @Override
             public void onClick(View view){
                 if(position > 0){
-                    Workout selected = workouts.remove(position);
-                    workouts.add(position - 1, selected);
+                    Exercise selected = exercises.remove(position);
+                    exercises.add(position - 1, selected);
                     notifyDataSetChanged();
                 }
 
@@ -70,9 +71,9 @@ public class ListExerciseAdapter extends ArrayAdapter<Workout> {
         downButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(position < workouts.size() - 1) {
-                    Workout selected = workouts.remove(position + 1);
-                    workouts.add(position, selected);
+                if(position < exercises.size() - 1) {
+                    Exercise selected = exercises.remove(position + 1);
+                    exercises.add(position, selected);
                     notifyDataSetChanged();
                 }
             }
@@ -84,10 +85,10 @@ public class ListExerciseAdapter extends ArrayAdapter<Workout> {
         sets = (TextView)convertView.findViewById(R.id.sets);
         restTime = (TextView)convertView.findViewById(R.id.restTime);
 
-        name.setText(String.valueOf((workouts.get(position).getExerciseName())));
-        sets.setText("Sets: " + String.valueOf(workouts.get(position).getSets()));
-        reps.setText("Reps: " + workouts.get(position).getReps());
-        restTime.setText("Rest: " + String.valueOf(workouts.get(position).getRestTime()) + "s");
+        name.setText(String.valueOf((exercises.get(position).getName())));
+        sets.setText("Sets: " + String.valueOf(exercises.get(position).getSets()));
+        reps.setText("Reps: " + exercises.get(position).getReps());
+        restTime.setText("Rest: " + String.valueOf(exercises.get(position).getRestTime()) + "s");
 
         return convertView;
     }

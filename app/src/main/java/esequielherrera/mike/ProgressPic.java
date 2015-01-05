@@ -27,25 +27,11 @@ import java.util.Date;
  */
 public class ProgressPic {
 
-    private int id;
-    private int routineId;
     private String path;
-    private String date;
 
-    public ProgressPic(){
-    }
 
-    public ProgressPic(int id, int routineId, String path, String date) {
-        this.id = id;
-        this.routineId = routineId;
+    public ProgressPic(String path){
         this.path = path;
-        this.date = date;
-    }
-
-    public ProgressPic(int routineId, String path, String date){
-        this.routineId = routineId;
-        this.path = path;
-        this.date = date;
     }
 
     public static int getPicOrientation(Context context, String path){
@@ -134,7 +120,10 @@ public class ProgressPic {
 
     public Bitmap getBitmap(int width, int height){
         Bitmap pic = BitmapFactory.decodeFile(path);
-        return Bitmap.createScaledBitmap(pic, width, height, true);
+        if(pic != null) {
+            return Bitmap.createScaledBitmap(pic, width, height, true);
+        }
+        return null;
     }
 
     /**
@@ -184,34 +173,12 @@ public class ProgressPic {
         return new File(imagesFolder, "QR_" + timeStamp + ".png").getAbsolutePath();
     }
 
-
-    public int getProgressPicId() {
-        return id;
-    }
-
-    public int getroutineId() {
-        return routineId;
-    }
-
-
-    public void setRoutineId(int routineId) {
-        this.routineId = routineId;
-    }
-
     public String getPath() {
         return path;
     }
 
     public void setPath(String uri) {
         this.path = uri;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
     }
 
 }
